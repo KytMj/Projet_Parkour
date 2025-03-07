@@ -1,4 +1,4 @@
-package com.example.projet_parkour.view
+package com.example.projet_parkour
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
