@@ -58,4 +58,15 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    //Retrofit et le convertisseur GSON
+    val retrofitVersion = "2.11.0"
+    implementation("com.squareup.retrofit2:retrofit:$retrofitVersion")
+    implementation("com.squareup.retrofit2:converter-gson:$retrofitVersion")
+
+    //Runtime LiveData
+    implementation("androidx.compose.runtime:runtime-livedata:1.7.5")
+
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+
 }
