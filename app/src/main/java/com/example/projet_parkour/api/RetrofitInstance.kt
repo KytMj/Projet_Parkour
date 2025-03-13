@@ -21,14 +21,12 @@ object RetrofitInstance {
 
     private fun okhttpClient(token : Token) = OkHttpClient().newBuilder()
         .addInterceptor(
-            object : Interceptor {
-                override fun intercept(chain: Interceptor.Chain): Response {
-                    val request : Request = chain.request().newBuilder()
-                        .header("Authorization", "${token.value}")
-                        .build()
+            Interceptor { chain ->
+                val request : Request = chain.request().newBuilder()
+                    .header("Authorization", token.value)
+                    .build()
 
-                    return chain.proceed(request)
-                }
+                chain.proceed(request)
             }
         )
 

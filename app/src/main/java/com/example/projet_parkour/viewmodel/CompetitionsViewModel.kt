@@ -30,7 +30,7 @@ class CompetitionsViewModel : ViewModel() {
                 }
             }
             catch (ex : Exception){
-                _competitionResult.value = NetworkResponse.Error("Les données n'ont pas réussi à être chargées."+ex.message)
+                _competitionResult.value = NetworkResponse.Error("Les données n'ont pas réussi à être chargées. \n"+ ex.toString() + "\nmessage :" + ex.message)
             }
         }
     }
