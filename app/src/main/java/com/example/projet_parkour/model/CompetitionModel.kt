@@ -13,3 +13,11 @@ data class CompetitionModelItem(
     val status: String,
     val updated_at: String
 )
+
+data class CreationCompetitionModelItem(
+    val name: String,
+    val age_min: Int,
+    val age_max: Int,
+    val gender: String,
+    val has_retry: Boolean,
+)

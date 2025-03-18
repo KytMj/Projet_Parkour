@@ -16,13 +16,15 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import com.example.projet_parkour.api.NetworkResponse
-import com.example.projet_parkour.viewmodel.CompetitionsViewModel
 import com.example.projet_parkour.viewmodel.CoursesViewModel
 
 @Composable
-fun CoursesPage(modifier: Modifier, viewModel: CoursesViewModel, competitionId : Int?){
+fun CoursesPage(
+    modifier: Modifier,
+    viewModel: CoursesViewModel,
+    competitionId: Int?
+){
     val coursesResult = viewModel.coursesResult.observeAsState()
 
     LaunchedEffect(Unit) {
