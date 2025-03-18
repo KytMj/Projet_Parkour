@@ -41,6 +41,7 @@ android {
 
 dependencies {
 
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
@@ -64,9 +65,14 @@ dependencies {
     implementation("com.squareup.retrofit2:retrofit:$retrofitVersion")
     implementation("com.squareup.retrofit2:converter-gson:$retrofitVersion")
 
+
     //Runtime LiveData
     implementation("androidx.compose.runtime:runtime-livedata:1.7.5")
 
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
+
+
+    val room_version = "2.6.1"
+    implementation("androidx.room:room-runtime:$room_version")
 
 }

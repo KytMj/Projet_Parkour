@@ -16,8 +16,10 @@ import androidx.compose.ui.input.pointer.motionEventSpy
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
 import com.example.projet_parkour.ui.theme.Projet_ParkourTheme
+import com.example.projet_parkour.view.ArbitragePage
 import com.example.projet_parkour.view.CompetitionsPage
 import com.example.projet_parkour.view.Header
+import com.example.projet_parkour.view.selectCompetition
 import com.example.projet_parkour.viewmodel.CompetitionsViewModel
 
 class MainActivity : ComponentActivity() {
@@ -32,11 +34,8 @@ class MainActivity : ComponentActivity() {
             Projet_ParkourTheme {
                 Scaffold( modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Column {
-                        Header(modifier = Modifier)
-                        CompetitionsPage(
-                            modifier = Modifier.padding(innerPadding),
-                            competitionsViewModel
-                        )
+                        //Header(modifier = Modifier)
+                        ArbitragePage(competitionsViewModel)
                     }
                 }
             }
