@@ -1,7 +1,6 @@
 package com.example.projet_parkour
 
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -16,7 +15,6 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -37,8 +35,8 @@ import androidx.navigation.navArgument
 import com.example.projet_parkour.ui.theme.Pink40
 import com.example.projet_parkour.ui.theme.Projet_ParkourTheme
 import com.example.projet_parkour.view.CompetitionsPage
-import com.example.projet_parkour.view.CoursesPage
 import com.example.projet_parkour.view.CreateCompetitionPage
+import com.example.projet_parkour.view.CoursesPage
 import com.example.projet_parkour.view.Header
 import com.example.projet_parkour.viewmodel.CompetitionsViewModel
 import com.example.projet_parkour.viewmodel.CoursesViewModel

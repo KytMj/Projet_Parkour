@@ -35,7 +35,7 @@ class CompetitionsViewModel : ViewModel() {
                         _competitionResult.value = NetworkResponse.Success(it)
                     }
                 } else {
-                    _competitionResult.value = NetworkResponse.Error("Les données n'ont pas réussi à être chargées. (error)")
+                    _competitionResult.value = NetworkResponse.Error("Les données n'ont pas réussi à être chargées. (error "+response.code().toString() + ")");
                 }
             }
             catch (ex : Exception){
@@ -43,6 +43,7 @@ class CompetitionsViewModel : ViewModel() {
             }
         }
     }
+
 
     fun createCompetition(competition : CreationCompetitionModelItem){
         viewModelScope.launch {
