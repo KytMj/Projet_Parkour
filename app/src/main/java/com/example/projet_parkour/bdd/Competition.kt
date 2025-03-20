@@ -10,7 +10,8 @@ data class Competition(
     val ageMax: Int,
     val gender: Char,
     val hasTry: Boolean,
-    val status: CompetitionStatus
+    val status: String
 )
+
 
 enum class CompetitionStatus { NOT_READY, NOT_STARTED, STARTED, FINISHED }

@@ -1,6 +1,5 @@
 package com.example.projet_parkour.bdd
 import androidx.room.*
-import java.util.Date
 
 
 @Entity
@@ -10,7 +9,7 @@ data class Competitor(
     val lastName: String,
     val email: String,
     val phone: String,
-    val bornAt: Date,
+    val bornAt: String,
     val gender: Gender
 )
 
