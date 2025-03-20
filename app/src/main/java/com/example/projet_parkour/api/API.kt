@@ -18,70 +18,70 @@ import retrofit2.http.Path
 interface API {
 
     //COMPETITIONS
-    @GET("/competitions")
+    @GET("/api/competitions")
     suspend fun getCompetitions() : Response<CompetitionModel>
 
-    @GET("/competitions/{id}")
+    @GET("/api/competitions/{id}")
     suspend fun getCompetitionsById(@Path("id") id : Int) : Response<CompetitionModel>
 
-    @POST("/competitions")
+    @POST("/api/competitions")
     suspend fun createCompetitions(@Body competition : CreationCompetitionModelItem) : Response<CreationCompetitionModelItem>
 
 
     //COMPETITORS
-    @GET("/competitions/{id}/inscriptions")
+    @GET("/api/competitions/{id}/inscriptions")
     suspend fun getCompetitorsByCompetitionId(@Path("id") id : Int) : Response<CompetitorModel>
 
-    @GET("/competitors")
+    @GET("/api/competitors")
     suspend fun getCompetitors() : Response<CompetitorModel>
 
-    @GET("/competitors/{id}")
+    @GET("/api/competitors/{id}")
     suspend fun getCompetitorsById(@Path("id") id : Int) : Response<CompetitorModel>
 
 
     //COURSES
-    @GET("/competitions/{id}/courses")
+    @GET("/api/competitions/{id}/courses")
     suspend fun getCoursesByCompetitionId(@Path("id") id : Int) : Response<CoursesModel>
 
-    @GET("/competitors/{id}/courses")
+    @GET("/api/competitors/{id}/courses")
     suspend fun getCoursesByCompetitorId(@Path("id") id : Int) : Response<CoursesModel>
 
-    @GET("/courses")
+    @GET("/api/courses")
     suspend fun getCourses() : Response<CoursesModel>
 
-    @GET("/courses/{id}")
+    @GET("/api/courses/{id}")
     suspend fun getCoursesById(@Path("id") id : Int) : Response<CoursesModel>
 
 
     //OBSTACLES
-    @GET("/courses/{id}/obstacles")
+    @GET("/api/courses/{id}/obstacles")
     suspend fun getObstaclesByCourseId(@Path("id") id : Int) : Response<ObstacleModel>
 
-    @GET("/obstacles")
+    @GET("/api/obstacles")
     suspend fun getObstacles() : Response<ObstacleModel>
 
-    @GET("/obstacles/{id}")
+    @GET("/api/obstacles/{id}")
     suspend fun getObstaclesById(@Path("id") id : Int) : Response<ObstacleModel>
 
 
     //PERFORMANCE OBSTACLES
-    @GET("/competitors/{id}/{id_course}/details_performances")
+    @GET("/api/competitors/{id}/{id_course}/details_performances")
     suspend fun getPerformanceObstaclesByCompetitorId(@Path("id") id : Int, @Path("id_course") idCourse : Int) : Response<PerformanceObstacleModel>
 
-    @GET("/performance_obstacles")
+    @GET("/api/performance_obstacles")
     suspend fun getPerformanceObstacles() : Response<PerformanceObstacleModel>
 
-    @GET("/performance_obstacles/{id}")
+    @GET("/api/performance_obstacles/{id}")
     suspend fun getPerformanceObstaclesById(@Path("id") id : Int) : Response<PerformanceObstacleModel>
 
 
     //PERFORMANCES
-    @GET("/competitors/{id}/performances")
+    @GET("/api/competitors/{id}/performances")
     suspend fun getPerformancesByCompetitorId(@Path("id") id : Int) : Response<PerformanceModel>
 
-    @GET("/performances")
+    @GET("/api/performances")
     suspend fun getPerformances() : Response<PerformanceModel>
 
-    @GET("/performances/{id}")
+    @GET("/api/performances/{id}")
     suspend fun getPerformancesById(@Path("id") id : Int) : Response<PerformanceModel>
 }

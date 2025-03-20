@@ -1,9 +1,11 @@
 package com.example.projet_parkour
 
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -38,17 +40,19 @@ import com.example.projet_parkour.view.CompetitionsPage
 import com.example.projet_parkour.view.CreateCompetitionPage
 import com.example.projet_parkour.view.CoursesPage
 import com.example.projet_parkour.view.Header
+import com.example.projet_parkour.view.InscriptionConcurrentsPage
 import com.example.projet_parkour.viewmodel.CompetitionsViewModel
+import com.example.projet_parkour.viewmodel.CompetitorsViewModel
 import com.example.projet_parkour.viewmodel.CoursesViewModel
 
 class MainActivity : ComponentActivity() {
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
         val competitionsViewModel = ViewModelProvider(this)[CompetitionsViewModel::class.java]
         val coursesViewModel = ViewModelProvider(this)[CoursesViewModel::class.java]
+        val competitorsViewModel = ViewModelProvider(this)[CompetitorsViewModel::class.java]
 
         setContent {
             val navController = rememberNavController()
@@ -80,11 +84,27 @@ class MainActivity : ComponentActivity() {
                                 }
                             )) { backStackEntry ->
                                 val competitionId = backStackEntry.arguments?.getInt("competitionId")
-                                CoursesPage(
-                                    modifier = Modifier.padding(16.dp),
-                                    coursesViewModel,
-                                    competitionId
-                                )
+                                if (competitionId != null) {
+                                    CoursesPage(
+                                        modifier = Modifier.padding(16.dp),
+                                        coursesViewModel,
+                                        competitionId
+                                    )
+                                }
+                            }
+                            composable("inscription_concurrents_page/{competitionId}", arguments = listOf(
+                                navArgument("competitionId"){
+                                    type = NavType.IntType
+                                }
+                            )) { backStackEntry ->
+                                val competitionId = backStackEntry.arguments?.getInt("competitionId")
+                                if (competitionId != null) {
+                                    InscriptionConcurrentsPage(
+                                        modifier = Modifier.padding(16.dp),
+                                        competitorsViewModel,
+                                        competitionId
+                                    )
+                                }
                             }
                         })
                     }

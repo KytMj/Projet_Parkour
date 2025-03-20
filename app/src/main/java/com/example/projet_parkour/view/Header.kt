@@ -24,14 +24,14 @@ import androidx.navigation.NavController
 
 @Composable
 fun Header(modifier: Modifier, navController: NavController, isEnable: MutableState<Boolean>){
-    Row(modifier = Modifier.padding(top = 20.dp, start = 10.dp, end = 10.dp)
-        .fillMaxWidth()
+    Row(modifier = Modifier.fillMaxWidth()
         .background(MaterialTheme.colorScheme.inversePrimary),
         horizontalArrangement = Arrangement.End,
         verticalAlignment = Alignment.CenterVertically
     )
     {
-        Button(onClick = {
+        Button(
+            onClick = {
             navController.navigate("competitions_page")
         }) {
             Text("Competitions")

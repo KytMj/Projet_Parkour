@@ -17,11 +17,11 @@ class CoursesViewModel : ViewModel() {
     private val _coursesResult = MutableLiveData<NetworkResponse<CoursesModel>>()
     val coursesResult : LiveData<NetworkResponse<CoursesModel>> = _coursesResult
 
-    fun getCourses(){
+    fun getCoursesByCompetitionId(competitionId : Int){
         _coursesResult.value = NetworkResponse.Loading
         viewModelScope.launch {
             try {
-                val response = api.getCourses()
+                val response = api.getCoursesByCompetitionId(competitionId)
                 if (response.isSuccessful) {
                     response.body()?.let {
                         _coursesResult.value = NetworkResponse.Success(it)

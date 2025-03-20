@@ -110,19 +110,19 @@ fun CreateCompetitionPage(
         }
         Spacer(modifier = Modifier.size(4.dp))
 
-        Button(enabled = false, //TODO : à faire
-            onClick = {
+        Button(onClick = {
             val gender = when (selectedOptionGender.value) {
                 "Homme" -> "H"; "Femme" -> "F"
                 else -> {
                     ""
                 }
             }
+
             val competition = CreationCompetitionModelItem(
                 age_max = ageMaxiState?.toInt() ?: 0,
                 age_min = ageMiniState?.toInt() ?: 0,
                 gender = gender,
-                has_retry = checkedHasRetry.value,
+                has_retry = if(checkedHasRetry.value) 1 else 0,
                 name = nameState.toString()
             );
 
