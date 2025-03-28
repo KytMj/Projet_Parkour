@@ -17,6 +17,7 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -63,7 +64,7 @@ class MainActivity : ComponentActivity() {
 
             Projet_ParkourTheme {
                 Box(modifier = Modifier.padding(top = 40.dp, bottom = 40.dp).fillMaxSize().background(MaterialTheme.colorScheme.background)) {
-                    Column {
+                    Column{
                         Header(modifier = Modifier, navController, isEnable)
                         NavHost(navController = navController, startDestination = "competitions_page", builder = {
                             composable("competitions_page") {
