@@ -37,10 +37,12 @@ import androidx.navigation.navArgument
 import com.example.projet_parkour.ui.theme.Pink40
 import com.example.projet_parkour.ui.theme.Projet_ParkourTheme
 import com.example.projet_parkour.view.CompetitionsPage
+import com.example.projet_parkour.view.CompetitorsPage
 import com.example.projet_parkour.view.CreateCompetitionPage
 import com.example.projet_parkour.view.CoursesPage
+import com.example.projet_parkour.view.DisplayCoursesCompetitors
 import com.example.projet_parkour.view.Header
-import com.example.projet_parkour.view.InscriptionConcurrentsPage
+import com.example.projet_parkour.view.InscriptionCompetitorsPage
 import com.example.projet_parkour.viewmodel.CompetitionsViewModel
 import com.example.projet_parkour.viewmodel.CompetitorsViewModel
 import com.example.projet_parkour.viewmodel.CoursesViewModel
@@ -60,7 +62,7 @@ class MainActivity : ComponentActivity() {
             val backStackEntry by navController.currentBackStackEntryAsState();
 
             Projet_ParkourTheme {
-                Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+                Box(modifier = Modifier.padding(top = 40.dp, bottom = 40.dp).fillMaxSize().background(MaterialTheme.colorScheme.background)) {
                     Column {
                         Header(modifier = Modifier, navController, isEnable)
                         NavHost(navController = navController, startDestination = "competitions_page", builder = {
@@ -78,28 +80,30 @@ class MainActivity : ComponentActivity() {
                                     navController
                                 )
                             }
-                            composable("courses_page/{competitionId}", arguments = listOf(
+                            composable("courses_competitors_page/{competitionId}", arguments = listOf(
                                 navArgument("competitionId"){
                                     type = NavType.IntType
                                 }
                             )) { backStackEntry ->
                                 val competitionId = backStackEntry.arguments?.getInt("competitionId")
                                 if (competitionId != null) {
-                                    CoursesPage(
+                                    DisplayCoursesCompetitors(
                                         modifier = Modifier.padding(16.dp),
                                         coursesViewModel,
-                                        competitionId
+                                        competitorsViewModel,
+                                        competitionId,
+                                        navController
                                     )
                                 }
                             }
-                            composable("inscription_concurrents_page/{competitionId}", arguments = listOf(
+                            composable("inscription_competitors_page/{competitionId}", arguments = listOf(
                                 navArgument("competitionId"){
                                     type = NavType.IntType
                                 }
                             )) { backStackEntry ->
                                 val competitionId = backStackEntry.arguments?.getInt("competitionId")
                                 if (competitionId != null) {
-                                    InscriptionConcurrentsPage(
+                                    InscriptionCompetitorsPage(
                                         modifier = Modifier.padding(16.dp),
                                         competitorsViewModel,
                                         competitionId
