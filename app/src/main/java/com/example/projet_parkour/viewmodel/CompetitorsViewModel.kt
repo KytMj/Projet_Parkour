@@ -32,4 +32,23 @@ class CompetitorsViewModel : ViewModel() {
             }
         }
     }
+
+    fun getCompetitorsByCourse(competitionId: Int, courseId: Int){
+        _competitorResult.value = NetworkResponse.Loading
+        viewModelScope.launch {
+            try {
+                val response = api.getCompetitors()
+                if (response.isSuccessful) {
+                    response.body()?.let {
+                        _competitorResult.value = NetworkResponse.Success(it)
+                    }
+                } else {
+                    _competitorResult.value = NetworkResponse.Error("Les données n'ont pas réussi à être chargées. (error "+response.code().toString() + ")");
+                }
+            }
+            catch (ex : Exception){
+                _competitorResult.value = NetworkResponse.Error("Les données n'ont pas réussi à être chargées. \n"+ ex.toString() + "\nmessage :" + ex.message)
+            }
+        }
+    }
 }

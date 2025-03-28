@@ -84,20 +84,20 @@ fun CompetitionsPage(
                                 Text("Age minimum : " + data.age_min.toString())
                                 Text("Age maximum : " + data.age_max.toString())
                                 Text("Plusieurs essais possible ? " + if(data.has_retry == 1) "Oui" else "Non")
-                                Row{
+                                Column{
                                     Button(
                                         onClick = {
-                                            navController.navigate("courses_page/${data.id}")
+                                            navController.navigate("courses_competitors_page/${data.id}")
                                         }
                                     ) {
-                                        Text("Accès aux parkours")
+                                        Text("Accès aux parkours et aux concurrents")
                                     }
                                     Button(
                                         onClick = {
-                                            navController.navigate("inscription_concurrents_page/${data.id}")
+                                            navController.navigate("inscription_competitors_page/${data.id}")
                                         }
                                     ) {
-                                        Text("Accès aux concurrents de la compétition")
+                                        Text("Accès aux inscriptions de la compétition")
                                     }
                                 }
                             }

@@ -1,6 +1,5 @@
 package com.example.projet_parkour.view
 
-import android.os.Build
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -19,12 +18,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.projet_parkour.api.NetworkResponse
 import com.example.projet_parkour.viewmodel.CompetitorsViewModel
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 
 @Composable
-fun InscriptionConcurrentsPage(
+fun InscriptionCompetitorsPage(
     modifier: Modifier,
     viewModel: CompetitorsViewModel,
     competitionId: Int
