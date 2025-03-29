@@ -5,6 +5,7 @@ import com.example.projet_parkour.model.CompetitionModelItem
 import com.example.projet_parkour.model.CompetitorModel
 import com.example.projet_parkour.model.CoursesModel
 import com.example.projet_parkour.model.CreationCompetitionModelItem
+import com.example.projet_parkour.model.CreationCompetitorModelItem
 import com.example.projet_parkour.model.ObstacleModel
 import com.example.projet_parkour.model.PerformanceModel
 import com.example.projet_parkour.model.PerformanceObstacleModel
@@ -37,6 +38,9 @@ interface API {
 
     @GET("/api/competitors/{id}")
     suspend fun getCompetitorsById(@Path("id") id : Int) : Response<CompetitorModel>
+
+    @POST("/api/competitors")
+    suspend fun createCompetitor(@Body competitor : CreationCompetitorModelItem) : Response<CreationCompetitorModelItem>
 
 
     //COURSES

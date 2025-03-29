@@ -41,7 +41,9 @@ import com.example.projet_parkour.view.CompetitionsPage
 import com.example.projet_parkour.view.CompetitorsPage
 import com.example.projet_parkour.view.CreateCompetitionPage
 import com.example.projet_parkour.view.CoursesPage
+import com.example.projet_parkour.view.CreateCompetitorPage
 import com.example.projet_parkour.view.DisplayCoursesCompetitors
+import com.example.projet_parkour.view.FloatingButtonAdd
 import com.example.projet_parkour.view.Header
 import com.example.projet_parkour.view.InscriptionCompetitorsPage
 import com.example.projet_parkour.viewmodel.CompetitionsViewModel
@@ -49,6 +51,7 @@ import com.example.projet_parkour.viewmodel.CompetitorsViewModel
 import com.example.projet_parkour.viewmodel.CoursesViewModel
 
 class MainActivity : ComponentActivity() {
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -97,17 +100,36 @@ class MainActivity : ComponentActivity() {
                                     )
                                 }
                             }
-                            composable("inscription_competitors_page/{competitionId}", arguments = listOf(
+                            composable("create_competitor_page") {
+                                CreateCompetitorPage(
+                                    modifier = Modifier.padding(16.dp),
+                                    competitorsViewModel,
+                                    navController
+                                )
+                            }
+                            composable("inscription_competitors_page/{competitionId}:{competitionAgeMin},{competitionAgeMax},{competitionGender}", arguments = listOf(
                                 navArgument("competitionId"){
                                     type = NavType.IntType
-                                }
+                                },
+                                navArgument("competitionAgeMin"){
+                                    type = NavType.IntType
+                                },
+                                navArgument("competitionAgeMax"){
+                                    type = NavType.IntType
+                                },
+                                navArgument("competitionGender"){
+                                    type = NavType.StringType
+                                },
                             )) { backStackEntry ->
                                 val competitionId = backStackEntry.arguments?.getInt("competitionId")
-                                if (competitionId != null) {
+                                val ageMin = backStackEntry.arguments?.getInt("competitionAgeMin")
+                                val ageMax = backStackEntry.arguments?.getInt("competitionAgeMax")
+                                val gender = backStackEntry.arguments?.getString("competitionGender")
+                                if (competitionId != null && ageMin != null && ageMax != null && gender != null) {
                                     InscriptionCompetitorsPage(
                                         modifier = Modifier.padding(16.dp),
-                                        competitorsViewModel,
-                                        competitionId
+                                        competitorsViewModel, competitionId, ageMin, ageMax, gender,
+                                        navController
                                     )
                                 }
                             }
@@ -123,23 +145,6 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-    }
-}
-
-@Composable
-fun FloatingButtonAdd(modifier: Modifier, route : String, navController: NavController){
-    val context = LocalContext.current
-    FloatingActionButton(
-        modifier = modifier,
-        onClick = {
-            navController.navigate(route)
-        },
-        containerColor = Pink40,
-        contentColor = Color.White,
-        elevation = FloatingActionButtonDefaults.elevation()
-    ) {
-        // adding icon for button.
-        Icon(Icons.Filled.Add, "Ajouter")
     }
 }
 
