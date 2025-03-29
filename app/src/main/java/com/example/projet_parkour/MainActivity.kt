@@ -49,6 +49,7 @@ import com.example.projet_parkour.view.selectCompetition
 import com.example.projet_parkour.viewmodel.CompetitionsViewModel
 import com.example.projet_parkour.viewmodel.CompetitorsViewModel
 import com.example.projet_parkour.viewmodel.CoursesViewModel
+import com.example.projet_parkour.viewmodel.ObstacleViewModel
 
 class MainActivity : ComponentActivity() {
 
@@ -59,12 +60,14 @@ class MainActivity : ComponentActivity() {
         val competitionsViewModel = ViewModelProvider(this)[CompetitionsViewModel::class.java]
         val coursesViewModel = ViewModelProvider(this)[CoursesViewModel::class.java]
         val competitorsViewModel = ViewModelProvider(this)[CompetitorsViewModel::class.java]
+        val obstacleViewModel = ViewModelProvider(this)[ObstacleViewModel::class.java]
+        this.deleteDatabase("database");
         setContent {
             Projet_ParkourTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Column {
                         //Header(modifier = Modifier)
-                        ArbitragePage(competitionsViewModel, coursesViewModel, competitorsViewModel)
+                        ArbitragePage(competitionsViewModel, coursesViewModel, competitorsViewModel, obstacleViewModel)
                     }
                 }
             }

@@ -4,10 +4,10 @@ import androidx.room.*
 
 @Entity
 data class Course(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    @PrimaryKey val id: Int,
     val name: String,
     val maxDuration: Int,
     val position: Int,
-    val isOver: Boolean,
+    val isOver: Int,
     val competitionId: Int
 )

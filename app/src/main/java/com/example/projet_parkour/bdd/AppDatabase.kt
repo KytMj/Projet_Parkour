@@ -10,7 +10,15 @@ import androidx.room.*
     version = 1
 )
 abstract class AppDatabase : RoomDatabase() {
+
+
     abstract fun competitionDao(): CompetitionDao
+    abstract fun courseDao(): CourseDao
+    abstract fun courseObstacleDao(): CourseObstacleDao
+    abstract fun obstacleDao(): ObstacleDao
+    abstract fun competitorDao(): CompetitorDao
+
+
     companion object{
         private var INSTANCE: AppDatabase? = null
         fun getInstance(context: Context): AppDatabase {

@@ -4,7 +4,7 @@ import androidx.room.*
 
 @Entity
 data class Competition(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    @PrimaryKey val id: Int?,
     val name: String,
     val ageMin: Int,
     val ageMax: Int,
