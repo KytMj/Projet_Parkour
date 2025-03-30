@@ -36,8 +36,8 @@ fun Header(modifier: Modifier, navController: NavController, isEnable: MutableSt
             onClick = {
             navController.navigate("competitions_page")
         },colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF425776),
-                contentColor = Color.White)) {
+                containerColor = Color(0xFFCCA43B),
+                contentColor = Color.Black)) {
             Text("Competitions")
         }
 

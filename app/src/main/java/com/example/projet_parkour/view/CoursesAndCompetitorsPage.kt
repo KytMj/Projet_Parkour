@@ -3,11 +3,18 @@ package com.example.projet_parkour.view
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
@@ -24,8 +31,11 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -43,7 +53,7 @@ fun DisplayCoursesCompetitors(
     navController: NavController
 ){
     Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
-        Row(modifier = Modifier.fillMaxSize()) {
+        Column(modifier = Modifier.fillMaxSize().fillMaxHeight()) {
             CoursesPage(modifier, coursesViewModel, competitionId)
             CompetitorsPage(modifier, competitorsViewModel, competitionId)
         }
@@ -53,11 +63,11 @@ fun DisplayCoursesCompetitors(
                 //TODO chrono
                 //navController.navigate("")
             },
-            containerColor = Pink40,
-            contentColor = Color.White,
+            containerColor = Color(0xFFCCA43B),
+            contentColor = Color.Black,
             elevation = FloatingActionButtonDefaults.elevation()
         ) {
-            Text(text = "Accéder au chrono", modifier = Modifier.padding(start = 20.dp, end = 20.dp))
+            Text(text = "Accéder au chrono", modifier = Modifier.padding(start = 10.dp, end = 10.dp))
         }
     }
 }
@@ -75,9 +85,13 @@ fun CoursesPage(
     }
 
     Column(
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.fillMaxHeight(0.5f).padding(10.dp).fillMaxWidth().clip(shape = RoundedCornerShape(20.dp)).background(Color(0xFF242F40)).padding(start = 10.dp, end = 10.dp, bottom = 20.dp)
     ) {
-        Text(text = "Courses de la compétition n°${competitionId}", fontSize = 20.sp, modifier = Modifier.padding(bottom = 20.dp))
+        Text(text = "Courses de la compétition n°${competitionId}",color = Color.White,
+            fontSize = 20.sp,
+            modifier = Modifier.padding(top = 20.dp, bottom = 20.dp),
+            fontWeight = FontWeight.Bold)
 
         when(val result = coursesResult.value){
             is NetworkResponse.Error -> {
@@ -91,19 +105,22 @@ fun CoursesPage(
                     items(result.data.size){ index ->
                         val data = result.data[index]
                         Card(
-                            colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.primaryContainer
-                            ),
+                            colors = CardDefaults.cardColors(containerColor = Color(0xFF748cab)),
                             modifier = Modifier.padding(start = 10.dp, end = 10.dp, bottom = 20.dp),
                             onClick = {
                                 //TODO accès au chrono ?
                             }
                         ) {
                             Column (modifier = Modifier.padding(25.dp)){
-                                Text("Nom de la course : " + data.name)
-                                Text("Durée maximum de la course : " + data.max_duration)
-                                Text("Course terminée ? " + if(data.is_over == 1) "Oui" else "Non")
-                                Text("Position dans la compétition : " + data.position)
+                                Row{
+                                    Text("N°" + data.position,
+                                        modifier = Modifier.padding(end = 10.dp).align(Alignment.CenterVertically),
+                                        fontWeight = FontWeight.Bold)
+                                    Column {
+                                        Text("Nom de la course : " + data.name)
+                                        Text("Durée maximum de la course : " + data.max_duration)
+                                        Text("Course terminée ? " + if(data.is_over == 1) "Oui" else "Non") }
+                                }
                             }
                         }
                     }
@@ -113,6 +130,7 @@ fun CoursesPage(
         }
     }
 }
+
 
 @Composable
 fun CompetitorsPage(
@@ -127,10 +145,13 @@ fun CompetitorsPage(
     }
 
     Column(
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.fillMaxHeight(1f).padding(10.dp).fillMaxWidth().clip(shape = RoundedCornerShape(20.dp)).background(Color(0xFF242F40)).padding(start = 10.dp, end = 10.dp, bottom = 20.dp)
     ) {
-        Text(text = "Concurrents de la compétition n°${competitionId} ", fontSize = 20.sp, modifier = Modifier.padding(bottom = 20.dp))
-
+        Text(text = "Concurrents de la compétition n°${competitionId} ",color = Color.White,
+            fontSize = 20.sp,
+            modifier = Modifier.padding(top = 20.dp, bottom = 20.dp),
+            fontWeight = FontWeight.Bold)
         when(val result = competitorResult.value){
             is NetworkResponse.Error -> {
                 Text(text = result.message)
@@ -145,8 +166,8 @@ fun CompetitorsPage(
                     items(result.data.size){ index ->
                         val data = result.data[index]
                         Card(
-                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
-                            modifier = Modifier.padding(start = 10.dp, end = 10.dp, bottom = 20.dp),
+                            colors = CardDefaults.cardColors(containerColor = Color(0xFF748cab)),
+                            modifier = Modifier.fillMaxWidth().padding(start = 10.dp, end = 10.dp, bottom = 20.dp)
                         ) {
                             Column (modifier = Modifier.padding(25.dp)){
                                 Text("Nom : " + data.last_name)

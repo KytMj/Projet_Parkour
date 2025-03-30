@@ -117,7 +117,7 @@ fun CompetitionsPage(
                                             contentColor = Color.Black),
                                         shape = RoundedCornerShape(30)
                                     ) {
-                                        Text("Parkours & Concurrents")
+                                        Text("Courses & Concurrents")
                                     }
                                     Button(
                                         modifier = Modifier.fillMaxWidth(),
