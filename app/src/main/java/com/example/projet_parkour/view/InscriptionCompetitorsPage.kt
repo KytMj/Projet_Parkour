@@ -1,26 +1,29 @@
 package com.example.projet_parkour.view
 
+import android.content.Context
 import android.os.Build
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,6 +36,7 @@ import com.example.projet_parkour.api.NetworkResponse
 import com.example.projet_parkour.model.CompetitorModel
 import com.example.projet_parkour.model.CompetitorModelItem
 import com.example.projet_parkour.ui.theme.Pink40
+import com.example.projet_parkour.view.utils.DropdownMenuComposable
 import com.example.projet_parkour.viewmodel.CompetitorsViewModel
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
@@ -47,21 +51,26 @@ fun InscriptionCompetitorsPage(
     ageMin: Int,
     ageMax: Int,
     gender: String,
-    navController: NavController
+    navController: NavController,
+    context: Context
 ) {
-    var selectedText = remember { mutableStateOf("") }
+    val selectedText = remember { mutableStateOf("") }
+    var idAddCompetitor = remember { mutableStateOf(-1) }
     val registeredCompetitorsList = CompetitorModel()
+    val addCompetitorResult = viewModel.addCompetitorCompetitionResult.observeAsState()
 
     Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)){
         Column {
             PotentialsCompetitorsPage(modifier, viewModel, ageMin, ageMax, gender, selectedText, registeredCompetitorsList)
-            RegisteredCompetitorsPage(modifier, viewModel, competitionId, registeredCompetitorsList)
-            Text(selectedText.value)
+            if (selectedText.value != "") {
+                idAddCompetitor.value = selectedText.value.split(".").get(0).substring(3).toInt()
+            }
             Button(onClick = {
-                //update Competition with new competitors and reload the page (?)
+                RegisterCompetitorOnClick(idAddCompetitor.value, competitionId, context, viewModel, addCompetitorResult)
             }) {
                 Text("Inscrire un participant")
             }
+            RegisteredCompetitorsPage(modifier, viewModel, competitionId, registeredCompetitorsList)
         }
         FloatingActionButton(
             modifier = Modifier.padding(bottom = 40.dp, end = 30.dp).align(Alignment.BottomEnd),
@@ -91,7 +100,7 @@ fun PotentialsCompetitorsPage(
     val competitorResult = viewModel.competitorResult.observeAsState()
 
     LaunchedEffect(Unit) {
-        viewModel.getPotentialCompetitors()
+        viewModel.getCompetitors()
     }
 
     Column(
@@ -115,12 +124,11 @@ fun PotentialsCompetitorsPage(
                 data.forEach { element ->
                     val age = ChronoUnit.YEARS.between(LocalDate.parse(element.born_at), LocalDate.now())
                     if(age in ageMin..ageMax && element.gender == gender){
-                        competitors.add("ID " + element.id.toString() + " - " + element.last_name.uppercase() + " " + element.first_name + element.gender + age.toString())
+                        competitors.add("ID-" + element.id.toString() + ". " + element.last_name.uppercase() + " " + element.first_name)
                     }
                 }
 
-                DropMenu(competitors, "Participants potentiels", selectedText)
-                Text(text = selectedText.value)
+                DropdownMenuComposable(competitors, "Participants potentiels", selectedText)
             }
             null -> {}
         }
@@ -144,7 +152,7 @@ fun RegisteredCompetitorsPage(
         modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-
+        Text(modifier = Modifier.padding(bottom = 10.dp), text ="Participants inscrits à la compétition")
         when(val result = competitorResult.value){
             is NetworkResponse.Error -> {
                 Text(text = result.message)
@@ -159,11 +167,44 @@ fun RegisteredCompetitorsPage(
                 LazyColumn {
                     items(result.data.size){ index ->
                         val data = result.data[index]
-                        Text(text = data.last_name.uppercase() + " " + data.first_name + data.gender + data.born_at)
+                        Card(
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.primaryContainer
+                            ),
+                            modifier = Modifier.fillMaxWidth().padding(start = 10.dp, end = 10.dp, bottom = 5.dp),
+                        ) {
+                            Text(modifier = Modifier.padding(10.dp), text = data.last_name.uppercase() + " " + data.first_name + data.gender + data.born_at)
+                        }
                     }
                 }
             }
             null -> {}
         }
+    }
+}
+
+fun RegisterCompetitorOnClick(
+    idAddCompetitor: Int,
+    competitionId: Int,
+    context: Context,
+    viewModel: CompetitorsViewModel,
+    addCompetitorResult: State<NetworkResponse<CompetitorModelItem>?>
+) {
+
+    if(idAddCompetitor != -1) {
+        viewModel.addCompetitorCompetition(idAddCompetitor, competitionId)
+        if (addCompetitorResult.value is NetworkResponse.Success) {
+            Toast.makeText(context, "Insertion réussie !", Toast.LENGTH_LONG).show()
+        }
+        if (addCompetitorResult.value is NetworkResponse.Error) {
+            Toast.makeText(
+                context,
+                (addCompetitorResult.value as NetworkResponse.Error).message,
+                Toast.LENGTH_LONG
+            ).show()
+        }
+    }
+    else{
+        Toast.makeText(context, "Vous n'avez pas sélectionner de participants à inscrire", Toast.LENGTH_LONG).show()
     }
 }

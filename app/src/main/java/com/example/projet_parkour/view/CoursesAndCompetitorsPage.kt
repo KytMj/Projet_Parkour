@@ -8,9 +8,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -44,7 +46,7 @@ fun DisplayCoursesCompetitors(
 ){
     Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         Row(modifier = Modifier.fillMaxSize()) {
-            CoursesPage(modifier, coursesViewModel, competitionId)
+            CoursesPage(modifier, coursesViewModel, navController, competitionId)
             CompetitorsPage(modifier, competitorsViewModel, competitionId)
         }
         FloatingActionButton(
@@ -66,6 +68,7 @@ fun DisplayCoursesCompetitors(
 fun CoursesPage(
     modifier: Modifier,
     viewModel: CoursesViewModel,
+    navController: NavController,
     competitionId: Int
 ){
     val coursesResult = viewModel.coursesResult.observeAsState()
@@ -96,7 +99,9 @@ fun CoursesPage(
                             ),
                             modifier = Modifier.padding(start = 10.dp, end = 10.dp, bottom = 20.dp),
                             onClick = {
-                                //TODO accès au chrono ?
+                                /*if(!(data.is_over)){
+                                    //TODO accès au chrono ?
+                                }*/
                             }
                         ) {
                             Column (modifier = Modifier.padding(25.dp)){
@@ -104,6 +109,19 @@ fun CoursesPage(
                                 Text("Durée maximum de la course : " + data.max_duration)
                                 Text("Course terminée ? " + if(data.is_over == 1) "Oui" else "Non")
                                 Text("Position dans la compétition : " + data.position)
+                                Column(modifier = Modifier.padding(6.dp)) {
+                                    Button(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        onClick = {
+                                            navController.navigate("obstacles_page/${data.id}")
+                                        }, colors = ButtonDefaults.buttonColors(
+                                            containerColor = Color(0xFFCCA43B),
+                                            contentColor = Color.Black),
+                                        shape = RoundedCornerShape(30)
+                                    ) {
+                                        Text("Obstacles")
+                                    }
+                                }
                             }
                         }
                     }

@@ -11,44 +11,35 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.FloatingActionButtonDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.lightColorScheme
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.NavController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.projet_parkour.ui.theme.Pink40
 import com.example.projet_parkour.ui.theme.Projet_ParkourTheme
 import com.example.projet_parkour.view.CompetitionsPage
-import com.example.projet_parkour.view.CompetitorsPage
 import com.example.projet_parkour.view.CreateCompetitionPage
-import com.example.projet_parkour.view.CoursesPage
 import com.example.projet_parkour.view.CreateCompetitorPage
+import com.example.projet_parkour.view.CreateCoursePage
 import com.example.projet_parkour.view.DisplayCoursesCompetitors
-import com.example.projet_parkour.view.FloatingButtonAdd
-import com.example.projet_parkour.view.Header
+import com.example.projet_parkour.view.utils.FloatingButtonAdd
+import com.example.projet_parkour.view.utils.Header
 import com.example.projet_parkour.view.InscriptionCompetitorsPage
+import com.example.projet_parkour.view.ObstaclesPage
 import com.example.projet_parkour.viewmodel.CompetitionsViewModel
 import com.example.projet_parkour.viewmodel.CompetitorsViewModel
 import com.example.projet_parkour.viewmodel.CoursesViewModel
+import com.example.projet_parkour.viewmodel.ObstaclesViewModel
 
 class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
@@ -59,11 +50,13 @@ class MainActivity : ComponentActivity() {
         val competitionsViewModel = ViewModelProvider(this)[CompetitionsViewModel::class.java]
         val coursesViewModel = ViewModelProvider(this)[CoursesViewModel::class.java]
         val competitorsViewModel = ViewModelProvider(this)[CompetitorsViewModel::class.java]
+        val obstaclesViewModel = ViewModelProvider(this)[ObstaclesViewModel::class.java]
 
         setContent {
             val navController = rememberNavController()
             val isEnable = remember { mutableStateOf(false) }
             val backStackEntry by navController.currentBackStackEntryAsState();
+            val context = LocalContext.current
 
             Projet_ParkourTheme {
                 Box(modifier = Modifier.padding(top = 40.dp, bottom = 40.dp).fillMaxSize().background(MaterialTheme.colorScheme.background)) {
@@ -104,8 +97,41 @@ class MainActivity : ComponentActivity() {
                                 CreateCompetitorPage(
                                     modifier = Modifier.padding(16.dp),
                                     competitorsViewModel,
-                                    navController
+                                    navController,
+                                    context
                                 )
+                            }
+                            composable("create_course_page/{competitionId}", arguments = listOf(
+                                navArgument("competitionId"){
+                                    type = NavType.IntType
+                                }
+                            )) { backStackEntry ->
+                                val competitionId = backStackEntry.arguments?.getInt("competitionId")
+                                if (competitionId != null) {
+                                    CreateCoursePage(
+                                        modifier = Modifier.padding(16.dp),
+                                        coursesViewModel,
+                                        competitionId,
+                                        navController,
+                                        context
+                                    )
+                                }
+                            }
+                            composable("obstacles_page/{courseId}", arguments = listOf(
+                                navArgument("courseId"){
+                                    type = NavType.IntType
+                                }
+                            )) { backStackEntry ->
+                                val courseId = backStackEntry.arguments?.getInt("courseId")
+                                if (courseId != null) {
+                                    ObstaclesPage(
+                                        modifier = Modifier.padding(16.dp),
+                                        obstaclesViewModel,
+                                        courseId,
+                                        navController,
+                                        context = context
+                                    )
+                                }
                             }
                             composable("inscription_competitors_page/{competitionId}:{competitionAgeMin},{competitionAgeMax},{competitionGender}", arguments = listOf(
                                 navArgument("competitionId"){
@@ -129,7 +155,7 @@ class MainActivity : ComponentActivity() {
                                     InscriptionCompetitorsPage(
                                         modifier = Modifier.padding(16.dp),
                                         competitorsViewModel, competitionId, ageMin, ageMax, gender,
-                                        navController
+                                        navController, context
                                     )
                                 }
                             }
@@ -139,6 +165,17 @@ class MainActivity : ComponentActivity() {
                         when(val currentRoute = backStackEntry?.destination?.route){
                             "competitions_page" -> FloatingButtonAdd(modifier = Modifier.padding(bottom = 40.dp, end = 30.dp).align(Alignment.BottomEnd),
                                                     route = "create_competitions_page", navController);
+
+                            //don't work
+                            "inscription_competitors_page" -> {
+                                val competitionId =
+                                    backStackEntry?.arguments?.getInt("competitionId")
+                                FloatingButtonAdd(
+                                    modifier = Modifier.padding(bottom = 40.dp, end = 30.dp)
+                                        .align(Alignment.BottomEnd),
+                                    route = "create_course_page/${competitionId}", navController
+                                );
+                            }
                             null -> {}
                         }
                     }

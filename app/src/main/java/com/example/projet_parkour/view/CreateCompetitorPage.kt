@@ -1,5 +1,6 @@
 package com.example.projet_parkour.view
 
+import android.content.Context
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -8,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -22,18 +22,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.MutableLiveData
 import androidx.navigation.NavController
 import com.example.projet_parkour.api.NetworkResponse
-import com.example.projet_parkour.model.CreationCompetitionModelItem
 import com.example.projet_parkour.model.CreationCompetitorModelItem
+import com.example.projet_parkour.view.utils.CalendarComposable
 import com.example.projet_parkour.viewmodel.CompetitorsViewModel
 
 @Composable
 fun CreateCompetitorPage(
     modifier: Modifier,
     viewModel: CompetitorsViewModel,
-    navController: NavController
+    navController: NavController,
+    context: Context
 ) {
     val createCompetitorResult = viewModel.createCompetitorResult.observeAsState()
 
@@ -42,6 +42,7 @@ fun CreateCompetitorPage(
     val emailState by viewModel.email.observeAsState() ;
     val phoneState by viewModel.phone.observeAsState() ;
     val bornAtState by viewModel.bornAt.observeAsState() ;
+    val mDate = remember { mutableStateOf("") }
 
     val radioOptionsGender = listOf("Homme", "Femme")
     val selectedOptionGender = remember { mutableStateOf(radioOptionsGender[0]) }
@@ -90,6 +91,9 @@ fun CreateCompetitorPage(
         }
         Spacer(modifier = Modifier.size(4.dp))
 
+        CalendarComposable(context, mDate)
+        Spacer(modifier = Modifier.size(4.dp))
+
         OutlinedTextField(
             value = emailState ?: "",
             label = { Text("Email") },
@@ -120,7 +124,7 @@ fun CreateCompetitorPage(
                 gender = gender,
                 email = emailState.toString(),
                 phone = phoneState.toString(),
-                born_at = bornAtState.toString()
+                born_at = mDate.value
             );
 
             viewModel.createCompetitor(competitor);

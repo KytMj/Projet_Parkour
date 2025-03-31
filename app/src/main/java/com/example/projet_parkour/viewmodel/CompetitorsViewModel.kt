@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.projet_parkour.api.NetworkResponse
 import com.example.projet_parkour.api.RetrofitInstance
 import com.example.projet_parkour.model.CompetitorModel
+import com.example.projet_parkour.model.CompetitorModelItem
 import com.example.projet_parkour.model.CreationCompetitionModelItem
 import com.example.projet_parkour.model.CreationCompetitorModelItem
 import kotlinx.coroutines.launch
@@ -26,6 +27,9 @@ class CompetitorsViewModel : ViewModel() {
 
     private val _createCompetitorResult = MutableLiveData<NetworkResponse<CreationCompetitorModelItem>>()
     val createCompetitorResult : LiveData<NetworkResponse<CreationCompetitorModelItem>> = _createCompetitorResult
+
+    private val _addCompetitorCompetitionResult = MutableLiveData<NetworkResponse<CompetitorModelItem>>()
+    val addCompetitorCompetitionResult : LiveData<NetworkResponse<CompetitorModelItem>> = _addCompetitorCompetitionResult
 
     var firstName = MutableLiveData("")
     var lastName = MutableLiveData("")
@@ -52,7 +56,7 @@ class CompetitorsViewModel : ViewModel() {
         }
     }
 
-    fun getPotentialCompetitors(){
+    fun getCompetitors(){
         _competitorResult.value = NetworkResponse.Loading
         viewModelScope.launch {
             try {
@@ -87,6 +91,26 @@ class CompetitorsViewModel : ViewModel() {
             }
             catch (ex : Exception){
                 _createCompetitorResult.value = NetworkResponse.Error("Les données n'ont pas réussi à être chargées. \n"+ ex.toString() + "\nmessage :" + ex.message)
+            }
+        }
+    }
+
+    fun addCompetitorCompetition(competitorId : Int, competitionId : Int){
+        viewModelScope.launch {
+            try {
+                val response = api.addCompetitorCompetition(competitionId, competitorId)
+                if (response.isSuccessful) {
+                    response.body()?.let {
+                        _addCompetitorCompetitionResult.value = NetworkResponse.Success(it)
+                    }
+                } else {
+                    _addCompetitorCompetitionResult.value = NetworkResponse.Error("" +
+                            "Les données n'ont pas réussi à être chargées. (error " +response.code().toString() + ")" +
+                            " "+response.errorBody().toString())
+                }
+            }
+            catch (ex : Exception){
+                _addCompetitorCompetitionResult.value = NetworkResponse.Error("Les données n'ont pas réussi à être chargées. \n"+ ex.toString() + "\nmessage :" + ex.message)
             }
         }
     }

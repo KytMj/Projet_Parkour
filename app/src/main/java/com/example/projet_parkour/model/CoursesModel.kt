@@ -12,3 +12,9 @@ data class CoursesModelItem(
     val position: Int,
     val updated_at: String
 )
+
+data class CreationCourseModelItem(
+    val name: String,
+    val max_duration: Int,
+    val competition_id: Int
+)

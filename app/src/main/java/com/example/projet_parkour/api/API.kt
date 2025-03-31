@@ -3,9 +3,11 @@ package com.example.projet_parkour.api
 import com.example.projet_parkour.model.CompetitionModel
 import com.example.projet_parkour.model.CompetitionModelItem
 import com.example.projet_parkour.model.CompetitorModel
+import com.example.projet_parkour.model.CompetitorModelItem
 import com.example.projet_parkour.model.CoursesModel
 import com.example.projet_parkour.model.CreationCompetitionModelItem
 import com.example.projet_parkour.model.CreationCompetitorModelItem
+import com.example.projet_parkour.model.CreationCourseModelItem
 import com.example.projet_parkour.model.ObstacleModel
 import com.example.projet_parkour.model.PerformanceModel
 import com.example.projet_parkour.model.PerformanceObstacleModel
@@ -27,6 +29,9 @@ interface API {
 
     @POST("/api/competitions")
     suspend fun createCompetitions(@Body competition : CreationCompetitionModelItem) : Response<CreationCompetitionModelItem>
+
+    @POST("/api/competitions/{id}/add_competitor")
+    suspend fun addCompetitorCompetition(@Path("id") id: Int, @Body competitorId : Int) : Response<CompetitorModelItem>
 
 
     //COMPETITORS
@@ -55,6 +60,9 @@ interface API {
 
     @GET("/api/courses/{id}")
     suspend fun getCoursesById(@Path("id") id : Int) : Response<CoursesModel>
+
+    @POST("/api/courses")
+    suspend fun createCourse(@Body course : CreationCourseModelItem) : Response<CreationCourseModelItem>
 
 
     //OBSTACLES

@@ -1,5 +1,6 @@
-package com.example.projet_parkour.view
+package com.example.projet_parkour.view.utils
 
+import android.content.Context
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -32,6 +33,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import androidx.navigation.NavController
 import com.example.projet_parkour.ui.theme.Pink40
+import android.icu.util.Calendar
+import android.widget.DatePicker
+import android.app.DatePickerDialog
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.sp
+import java.util.Date
 
 @Composable
 fun FloatingButtonAdd(modifier: Modifier, route : String, navController: NavController){
@@ -49,9 +63,49 @@ fun FloatingButtonAdd(modifier: Modifier, route : String, navController: NavCont
     }
 }
 
+@Composable
+fun CalendarComposable(context: Context, mDate: MutableState<String>){
+    // Declaring integer values
+    // for year, month and day
+    val mYear: Int
+    val mMonth: Int
+    val mDay: Int
+
+    // Initializing a Calendar
+    val mCalendar = Calendar.getInstance()
+
+    // Fetching current year, month and day
+    mYear = mCalendar.get(Calendar.YEAR)
+    mMonth = mCalendar.get(Calendar.MONTH)
+    mDay = mCalendar.get(Calendar.DAY_OF_MONTH)
+
+    mCalendar.time = Date()
+
+    // Declaring a string value to
+    // store date in string format
+
+    // Declaring DatePickerDialog and setting
+    // initial values as current values (present year, month and day)
+    val mDatePickerDialog = DatePickerDialog(
+        context,
+        { _: DatePicker, mYear: Int, mMonth: Int, mDayOfMonth: Int ->
+            mDate.value = "$mYear-${mMonth + 1}-$mDayOfMonth"
+        }, mYear, mMonth, mDay
+    )
+    Button(onClick = {
+        mDatePickerDialog.show()
+    }, colors = ButtonDefaults.buttonColors(containerColor = Color(0XFF0F9D58)) ) {
+        Text(text = "Sélectionner une date", color = Color.White)
+    }
+}
+
 //credits : https://www.geeksforgeeks.org/drop-down-menu-in-android-using-jetpack-compose/
 @Composable
-fun DropMenu(list: List<String>, menuName: String, selectedText: MutableState<String>){
+fun DropdownMenuComposable(
+    list: List<String>,
+    menuName: String,
+    selectedText: MutableState<String>
+){
     // Declaring a boolean value to store
     // the expanded state of the Text Field
     var expanded = remember { mutableStateOf(false) }
