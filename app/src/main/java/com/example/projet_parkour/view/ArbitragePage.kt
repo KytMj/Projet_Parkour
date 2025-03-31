@@ -101,6 +101,49 @@ fun <T> DropdownSelector(
         }
     }
 }
+
+
+
+
+
+@Composable
+fun selectParams(competitionViewModel: CompetitionsViewModel, coursesViewModel: CoursesViewModel, competitorsViewModel: CompetitorsViewModel, obstacleViewModel: ObstacleViewModel) {
+    val selectedCompetition = remember { mutableStateOf<CompetitionModelItem?>(null) }
+    val bdd = AppDatabase.getInstance(LocalContext.current)
+
+
+    selectCompetition(competitionViewModel, selectedCompetition, bdd)
+    val state = remember { CompetitionState(coursesViewModel, competitorsViewModel, obstacleViewModel) }
+    if (selectedCompetition.value != null) state.init(selectedCompetition.value!!)
+
+
+}
+
+
+
+@Composable
+fun selectCompetition(viewModel: CompetitionsViewModel, selectedCompetition: MutableState<CompetitionModelItem?>, bdd: AppDatabase) {
+    val competitionResult = viewModel.competitionResult.observeAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.getCompetitions()
+    }
+
+    when (val result = competitionResult.value) {
+        is NetworkResponse.Error -> Text(text = result.message)
+        is NetworkResponse.Loading -> CircularProgressIndicator()
+        is NetworkResponse.Success -> {
+            DropdownSelector(
+                title = "Sélectionnez une compétition",
+                items = result.data,
+                selectedItem = selectedCompetition,
+                labelExtractor = { it.name.toString() }
+            )
+        }
+        null -> {}
+    }
+}
+//todo move translators to another file
 fun CompetitionModelItem.toCompetition(): Competition? {
     try {
         return Competition(
@@ -135,76 +178,19 @@ fun CoursesModelItem.toCourse(): Course? {
 }
 
 
+//todo remove old code
 
-@Composable
-fun selectParams(competitionViewModel: CompetitionsViewModel, coursesViewModel: CoursesViewModel, competitorsViewModel: CompetitorsViewModel, obstacleViewModel: ObstacleViewModel) {
-    val selectedCompetition = remember { mutableStateOf<CompetitionModelItem?>(null) }
-    val bdd = AppDatabase.getInstance(LocalContext.current)
-    val click = remember { mutableStateOf(0) }
-    val lastClick = remember { mutableStateOf(0) }
-
-
-    selectCompetition(competitionViewModel, selectedCompetition, bdd)
-    val state = remember { CompetitionState(coursesViewModel, competitorsViewModel, obstacleViewModel) }
-    if (selectedCompetition.value != null) state.init(selectedCompetition.value!!)
-    //selectCourse(coursesViewModel, selectedCompetition.value?.id, bdd, state, selectedCompetition.value)
-
-
-}
-
-
-
-@Composable
-fun selectCompetition(viewModel: CompetitionsViewModel, selectedCompetition: MutableState<CompetitionModelItem?>, bdd: AppDatabase) {
-    val competitionResult = viewModel.competitionResult.observeAsState()
-
-    LaunchedEffect(Unit) {
-        viewModel.getCompetitions()
-    }
-
-    when (val result = competitionResult.value) {
-        is NetworkResponse.Error -> Text(text = result.message)
-        is NetworkResponse.Loading -> CircularProgressIndicator()
-        is NetworkResponse.Success -> {
-            DropdownSelector(
-                title = "Sélectionnez une compétition",
-                items = result.data,
-                selectedItem = selectedCompetition,
-                labelExtractor = { it.name.toString() }
-            )
-
-            LaunchedEffect(selectedCompetition.value) {
-
-                selectedCompetition.value?.let { competition ->
-                    val competitionEntity = competition.toCompetition()
-                    competitionEntity?.let {
-                        withContext(Dispatchers.IO) {
-                            try {
-                                bdd.competitionDao().insertCompetition(it)
-                            } catch (e: Exception) {
-                                println("Error: " + e.message)
-                            }
-                        }
-                    } ?: run {
-                        println("Error: competition entity is null")
-                    }
-                }
-            }
-        }
-        null -> {}
-    }
-}
-
+/*
 @Composable
 fun selectCourse(viewModel: CoursesViewModel, compId: Int?, bdd: AppDatabase, comp: CompetitionModelItem?) {
 
     val coursesResult = viewModel.coursesResult.observeAsState()
 
-    LaunchedEffect(compId) {
-        compId?.let {
-            viewModel.getCoursesByCompetitionId(it)
-        }
-    }
+//    LaunchedEffect(compId) {
+//        compId?.let {
+//            viewModel.getCoursesByCompetitionId(it)
+//        }
+//    }
 
     when (val result = coursesResult.value) {
         is NetworkResponse.Error -> Text(text = result.message)
@@ -212,16 +198,16 @@ fun selectCourse(viewModel: CoursesViewModel, compId: Int?, bdd: AppDatabase, co
         is NetworkResponse.Success -> {
 
             val courses = result.data.mapNotNull { it.toCourse() }
-            LaunchedEffect(courses) {
-                withContext(Dispatchers.IO) {
-                    try {
-                        bdd.courseDao().insertCourses(courses)
-
-                    }catch (e: Exception){
-                        println("Error:" + e.message)
-                    }
-                }
-            }
+//            LaunchedEffect(courses) {
+//                withContext(Dispatchers.IO) {
+//                    try {
+//                        bdd.courseDao().insertCourses(courses)
+//
+//                    }catch (e: Exception){
+//                        println("Error:" + e.message)
+//                    }
+//                }
+//            }
         }
         null -> {}
     }
@@ -230,11 +216,11 @@ fun selectCourse(viewModel: CoursesViewModel, compId: Int?, bdd: AppDatabase, co
 @Composable
 fun selectCompetitor(viewModel: CompetitorsViewModel, compId: Int?, bdd: AppDatabase){
     val competitorResult = viewModel.competitorResult.observeAsState()
-    LaunchedEffect(compId) {
-        compId?.let {
-            viewModel.getCompetitorsByCompetitionId(it)
-        }
-    }
+//    LaunchedEffect(compId) {
+//        compId?.let {
+//            viewModel.getCompetitorsByCompetitionId(it)
+//        }
+//    }
 
     when (val result = competitorResult.value) {
         is NetworkResponse.Error -> Text(text = result.message)
@@ -341,4 +327,5 @@ fun selectCourse(viewModel: CoursesViewModel, comp: Int?, selectedCourse: Mutabl
 
 
 }
+*/
 */

@@ -15,25 +15,29 @@ import kotlinx.coroutines.launch
 
 class ObstacleViewModel : ViewModel() {
     private val api = RetrofitInstance.api
-    private val _obstaclesResult = MutableLiveData<NetworkResponse<ObstacleModel>>()
-    val obstacleResult : LiveData<NetworkResponse<ObstacleModel>> = _obstaclesResult
+    private val _obstaclesResult = MutableLiveData<NetworkResponse<Pair<Int, ObstacleModel>>>()
+    val obstaclesResult: LiveData<NetworkResponse<Pair<Int, ObstacleModel>>> = _obstaclesResult
 
-
-    fun getObstacleByCourseId(courseID: Int){
+    fun getObstacleByCourseId(courseID: Int) {
         _obstaclesResult.value = NetworkResponse.Loading
         viewModelScope.launch {
             try {
                 val response = api.getObstaclesByCourseId(courseID)
                 if (response.isSuccessful) {
-                    response.body()?.let {
-                        _obstaclesResult.value = NetworkResponse.Success(it)
+                    response.body()?.let { obstacleList ->
+                        // Associer l'ID de la course avec la liste complète d'obstacles
+                        val result = Pair(courseID, obstacleList)
+
+                        // Mise à jour du LiveData avec la paire (courseID, liste des obstacles)
+                        _obstaclesResult.value = NetworkResponse.Success(result)
+                    } ?: run {
+                        _obstaclesResult.value = NetworkResponse.Error("Réponse vide.")
                     }
                 } else {
                     _obstaclesResult.value = NetworkResponse.Error("Les données n'ont pas réussi à être chargées. (error)")
                 }
-            }
-            catch (ex : Exception){
-                _obstaclesResult.value = NetworkResponse.Error("Les données n'ont pas réussi à être chargées. \n"+ ex.toString() + "\nmessage :" + ex.message)
+            } catch (ex: Exception) {
+                _obstaclesResult.value = NetworkResponse.Error("Les données n'ont pas réussi à être chargées. \n${ex}\nmessage: ${ex.message}")
             }
         }
     }
