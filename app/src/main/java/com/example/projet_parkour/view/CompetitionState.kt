@@ -1,90 +1,182 @@
 package com.example.projet_parkour.view
 
+import android.os.SystemClock
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontFamily
 import com.example.projet_parkour.api.NetworkResponse
+import com.example.projet_parkour.bdd.AppDatabase
+import com.example.projet_parkour.bdd.Perf
 import com.example.projet_parkour.model.CompetitionModelItem
 import com.example.projet_parkour.model.CompetitorModel
+import com.example.projet_parkour.model.CompetitorModelItem
+import com.example.projet_parkour.model.CourseObstacleModel
+import com.example.projet_parkour.model.CourseObstacleModelItem
 import com.example.projet_parkour.model.CoursesModel
+import com.example.projet_parkour.model.CoursesModelItem
 import com.example.projet_parkour.model.ObstacleModel
+import com.example.projet_parkour.model.PerformanceCreateModelItem
+import com.example.projet_parkour.model.PerformanceModelItem
+import com.example.projet_parkour.model.PerformanceObstacleCreateModelItem
+import com.example.projet_parkour.model.Perfs
 import com.example.projet_parkour.viewmodel.CompetitorsViewModel
 import com.example.projet_parkour.viewmodel.CoursesViewModel
-import com.example.projet_parkour.viewmodel.ObstacleViewModel
+import com.example.projet_parkour.viewmodel.CourseObstacleViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlin.time.Duration.Companion.milliseconds
 
-class CompetitionState(coursesViewModel: CoursesViewModel, competitorsViewModel: CompetitorsViewModel, obstacleViewModel: ObstacleViewModel) {
+class CompetitionState(coursesViewModel: CoursesViewModel, competitorsViewModel: CompetitorsViewModel, courseObstacleViewModel: CourseObstacleViewModel) {
     private val competition = mutableStateOf<CompetitionModelItem?>(null)
     private val courses = mutableStateOf<CoursesModel?>(null)
-    private val obstacles = mutableStateOf<HashMap<Int, ObstacleModel>>(HashMap())
+    private val obstacles = mutableStateOf<HashMap<Int, CourseObstacleModel>>(HashMap())
     private val competitors = mutableStateOf<CompetitorModel?>(null)
     private val coursesViewModel = coursesViewModel
     private val competitorsViewModel = competitorsViewModel
-    private val obstacleViewModel = obstacleViewModel
+    private val obstacleViewModel = courseObstacleViewModel
     private val compId = mutableStateOf<Int?>(null)
+
 
     @Composable
     fun init(comp: CompetitionModelItem){
-//        obstacles.value = ArrayList()
+        val arbitrage = remember { mutableStateOf(false) }
         competition.value = comp
         println("--------------------------------- debugage:id: ${competition.value?.id} ----------------------------------")
         compId.value = competition.value?.id
         initCompetitiors()
         initCourses()
         initObstacles()
-//        println("debugage competitor " + competitors.value?.forEach { copetitor -> copetitor.first_name  + " "})
-
-        courses.value?.forEach { course->
-//            println("debugage course id ${course.id}" + obstacles.value.get(course.id)?.forEach { obstacle -> obstacle.id.toString() + " " })
-        }
-//
-//        println("debugage competitor size" + competitors.value?.size)
-//
-//        println("debugage: obstacles count " + obstacles.value.size)
-//        println("debugage obstacle s ${obstacles.value.size}")
-        obstacles.value.forEach { (courseId, obstacleList) ->
-            println("debugage: Course $courseId has obstacles")
-            obstacleList.forEach { obstacle -> print(obstacle.id.toString() + " ") }
-        }
-////        println("debugage: ${obstacles.value.size}")
-//        println("debugage: here")
-        val arbitrage = remember { mutableStateOf(false) }
+        Button(onClick = {arbitrage.value = true}) { Text("arbitrer") }
         if (arbitrage.value) arbitrage()
-        Button(onClick = {arbitrage.value = true}) { }
-
     }
 
     @Composable
     fun arbitrage(){
         Column {
-            Row {
-                Text(competition.value?.name.toString())
-            }
-//            Row {
-//                competitors.value?.forEach { competitor ->
-//                    Text(competitor.first_name + " ")
-//                }
-//            }
-            Column {
-                courses.value?.forEach { course->
-                    println("debugage here")
-                    Column {
-                        Text(course.name)
-                        Row {
-                            obstacles.value.get(course.id)?.forEach { obstacle ->
-                                Text(obstacle.id.toString() + " ")
-                            }
-                            }
+            val bdd = AppDatabase.getInstance(LocalContext.current)
 
-                        }
+            var currTime = remember { mutableStateOf(0L) }
+            var isRunning by remember { mutableStateOf(false) }
+            var startTime by remember { mutableStateOf(0L) }
+            var lastObstacleTime by remember { mutableStateOf(0L) }
+
+            val allCompetitors = remember { competitors.value.orEmpty() }
+            val allCourses = remember { courses.value.orEmpty().filter { it.is_over == 0 } }
+            val allObstacles = remember { allCourses.associateWith { course -> obstacles.value[course.id].orEmpty() } }
+
+            var courseIndex by remember { mutableStateOf(0) }
+            var competitorIndex by remember { mutableStateOf(0) }
+            var obstacleIndex by remember { mutableStateOf(0) }
+
+            val perfs = remember { mutableStateMapOf<Triple<CompetitorModelItem, CoursesModelItem, CourseObstacleModelItem>, Perfs>() }
+
+            LaunchedEffect(isRunning) {
+                if (isRunning) {
+                    startTime = SystemClock.elapsedRealtime()
+                    while (isRunning) {
+                        delay(10)
+                        currTime.value = SystemClock.elapsedRealtime() - startTime
+                    }
                 }
             }
+
+            if (allCourses.isNotEmpty() && allCompetitors.isNotEmpty()) {
+                val currentCourse = allCourses[courseIndex]
+                val currentCompetitor = allCompetitors[competitorIndex]
+                val currentObstacleList = allObstacles[currentCourse].orEmpty()
+
+                if (currentObstacleList.isNotEmpty()) {
+                    val currentObstacle = currentObstacleList[obstacleIndex]
+
+                    Text(currentCourse.name)
+                    Text("${currentCompetitor.first_name} ${currentCompetitor.last_name}")
+                    Text(currentObstacle.obstacle_name)
+
+                    Button(onClick = {
+                        if (isRunning) {
+
+                            val elapsedTime = currTime.value - lastObstacleTime
+
+                            val perf = Perfs(
+                                obstacleId = currentObstacle.id,
+                                time = elapsedTime,
+                                hasfell = false
+                            )
+                            perfs[Triple(currentCompetitor, currentCourse, currentObstacle)] = perf
+                            println("here")
+                            CoroutineScope(Dispatchers.IO).launch {
+                                bdd.perfDao().insertPerf(Perf(
+                                    courseId = currentCourse.id,
+                                    competitorId = currentCompetitor.id,
+                                    obstacleId = currentObstacle.id,
+                                    time = elapsedTime.toInt()
+                                ))
+                            }
+
+
+                            lastObstacleTime = currTime.value
+
+
+                            if (obstacleIndex + 1 < currentObstacleList.size) {
+                                obstacleIndex++
+                            } else {
+                                obstacleIndex = 0
+                                if (competitorIndex + 1 < allCompetitors.size) {
+                                    competitorIndex++
+                                } else {
+                                    competitorIndex = 0
+                                    if (courseIndex + 1 < allCourses.size) {
+
+                                        courseIndex++
+                                    } else {
+                                        courseIndex = 0
+                                    }
+                                }
+                            }
+                        } else {
+
+                            isRunning = true
+                            lastObstacleTime = currTime.value
+                        }
+                    }) {
+                        Text(if (isRunning) "Enregistrer" else "Démarrer")
+                    }
+                    if (isRunning){
+                        Button(onClick = {
+                            if (competition.value?.has_retry == 1){
+                                isRunning = false
+                                currTime.value = lastObstacleTime
+                            }else{
+                                isRunning = false
+                                if (competitorIndex < allCompetitors.size){
+                                    competitorIndex++
+                                }
+                            }
+                        }) { "Chute" }
+                    }
+                }
+            }
+
+            Text("Chrono: ${currTime.value.milliseconds}")
         }
     }
 
@@ -132,10 +224,8 @@ class CompetitionState(coursesViewModel: CoursesViewModel, competitorsViewModel:
     @Composable
     fun initObstacles() {
         val obstacleResult = obstacleViewModel.obstaclesResult.observeAsState()
-        val id : Int
         LaunchedEffect(courses.value) {
             courses.value?.forEach { course ->
-                println("debugage heyyyyyyy ${course.id}")
                 obstacleViewModel.getObstacleByCourseId(course.id)
             }
         }

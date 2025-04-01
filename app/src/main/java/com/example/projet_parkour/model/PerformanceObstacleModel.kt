@@ -12,3 +12,11 @@ data class PerformanceObstacleModelItem(
     val to_verify: Int,
     val updated_at: String
 )
+
+data class PerformanceObstacleCreateModelItem(
+    val obstacle_id	: Int,
+    val performance_id : Int,
+    val has_fell : Int,
+    val to_verify : Int,
+    val time : Int
+)

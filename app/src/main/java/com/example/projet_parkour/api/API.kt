@@ -3,6 +3,7 @@ package com.example.projet_parkour.api
 import com.example.projet_parkour.model.CompetitionModel
 import com.example.projet_parkour.model.CompetitionModelItem
 import com.example.projet_parkour.model.CompetitorModel
+import com.example.projet_parkour.model.CourseObstacleModel
 import com.example.projet_parkour.model.CoursesModel
 import com.example.projet_parkour.model.CreationCompetitionModelItem
 import com.example.projet_parkour.model.ObstacleModel
@@ -55,7 +56,7 @@ interface API {
 
     //OBSTACLES
     @GET("/api/courses/{id}/obstacles")
-    suspend fun getObstaclesByCourseId(@Path("id") id : Int) : Response<ObstacleModel>
+    suspend fun getObstaclesByCourseId(@Path("id") id : Int) : Response<CourseObstacleModel>
 
     @GET("/api/obstacles")
     suspend fun getObstacles() : Response<ObstacleModel>

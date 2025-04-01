@@ -21,49 +21,15 @@ import com.example.projet_parkour.model.CompetitionModelItem
 import com.example.projet_parkour.model.CoursesModelItem
 import com.example.projet_parkour.viewmodel.CompetitorsViewModel
 import com.example.projet_parkour.viewmodel.CoursesViewModel
-import com.example.projet_parkour.viewmodel.ObstacleViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import com.example.projet_parkour.viewmodel.CourseObstacleViewModel
 
 @Composable
-fun ArbitragePage(competitionViewModel: CompetitionsViewModel, coursesViewModel: CoursesViewModel, competitorsViewModel: CompetitorsViewModel, obstacleViewModel: ObstacleViewModel){
+fun ArbitragePage(competitionViewModel: CompetitionsViewModel, coursesViewModel: CoursesViewModel, competitorsViewModel: CompetitorsViewModel, courseObstacleViewModel: CourseObstacleViewModel){
     Column {
-        selectParams(competitionViewModel, coursesViewModel, competitorsViewModel, obstacleViewModel)
-
-        Timer()
+        selectParams(competitionViewModel, coursesViewModel, competitorsViewModel, courseObstacleViewModel)
     }
 }
 
-@Composable
-fun Timer(){
-    var currTime by remember { mutableStateOf(0L) }
-    var isRunning by remember { mutableStateOf(false) }
-    var startTime by remember { mutableStateOf(0L) }
-    var baseTime by remember { mutableStateOf(0L) }
-
-    LaunchedEffect(isRunning) {
-        if (isRunning) {
-            startTime = SystemClock.elapsedRealtime() - baseTime
-            while (isRunning) {
-                delay(10)
-                currTime = SystemClock.elapsedRealtime() - startTime
-            }
-        } else {
-            baseTime = currTime
-        }
-    }
-
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center
-    ) {
-        Text(text = currTime.milliseconds.toString(), fontFamily = FontFamily.Monospace)
-        Button(onClick = {isRunning = !isRunning}) {Text(text = "start/stop")}
-
-    }
-
-
-}
 
 
 
@@ -107,13 +73,13 @@ fun <T> DropdownSelector(
 
 
 @Composable
-fun selectParams(competitionViewModel: CompetitionsViewModel, coursesViewModel: CoursesViewModel, competitorsViewModel: CompetitorsViewModel, obstacleViewModel: ObstacleViewModel) {
+fun selectParams(competitionViewModel: CompetitionsViewModel, coursesViewModel: CoursesViewModel, competitorsViewModel: CompetitorsViewModel, courseObstacleViewModel: CourseObstacleViewModel) {
     val selectedCompetition = remember { mutableStateOf<CompetitionModelItem?>(null) }
     val bdd = AppDatabase.getInstance(LocalContext.current)
 
 
     selectCompetition(competitionViewModel, selectedCompetition, bdd)
-    val state = remember { CompetitionState(coursesViewModel, competitorsViewModel, obstacleViewModel) }
+    val state = remember { CompetitionState(coursesViewModel, competitorsViewModel, courseObstacleViewModel) }
     if (selectedCompetition.value != null) state.init(selectedCompetition.value!!)
 
 

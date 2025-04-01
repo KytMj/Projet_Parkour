@@ -1,55 +1,31 @@
 package com.example.projet_parkour
 
-import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.annotation.RequiresApi
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
-import androidx.navigation.NavType
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
-import androidx.room.Room
 import com.example.projet_parkour.bdd.AppDatabase
 import com.example.projet_parkour.ui.theme.Pink40
 import com.example.projet_parkour.ui.theme.Projet_ParkourTheme
 import com.example.projet_parkour.view.ArbitragePage
-import com.example.projet_parkour.view.CompetitionsPage
-import com.example.projet_parkour.view.CreateCompetitionPage
-import com.example.projet_parkour.view.CoursesPage
-import com.example.projet_parkour.view.Header
-import com.example.projet_parkour.view.InscriptionConcurrentsPage
-import com.example.projet_parkour.view.selectCompetition
 import com.example.projet_parkour.viewmodel.CompetitionsViewModel
 import com.example.projet_parkour.viewmodel.CompetitorsViewModel
 import com.example.projet_parkour.viewmodel.CoursesViewModel
-import com.example.projet_parkour.viewmodel.ObstacleViewModel
+import com.example.projet_parkour.viewmodel.CourseObstacleViewModel
 
 class MainActivity : ComponentActivity() {
 
@@ -60,14 +36,14 @@ class MainActivity : ComponentActivity() {
         val competitionsViewModel = ViewModelProvider(this)[CompetitionsViewModel::class.java]
         val coursesViewModel = ViewModelProvider(this)[CoursesViewModel::class.java]
         val competitorsViewModel = ViewModelProvider(this)[CompetitorsViewModel::class.java]
-        val obstacleViewModel = ViewModelProvider(this)[ObstacleViewModel::class.java]
+        val courseObstacleViewModel = ViewModelProvider(this)[CourseObstacleViewModel::class.java]
         this.deleteDatabase("database");
         setContent {
             Projet_ParkourTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Column {
                         //Header(modifier = Modifier)
-                        ArbitragePage(competitionsViewModel, coursesViewModel, competitorsViewModel, obstacleViewModel)
+                        ArbitragePage(competitionsViewModel, coursesViewModel, competitorsViewModel, courseObstacleViewModel)
                     }
                 }
             }
