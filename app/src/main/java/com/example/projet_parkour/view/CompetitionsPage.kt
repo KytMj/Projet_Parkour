@@ -114,7 +114,7 @@ fun ButtonDisplay(navController: NavController, data: CompetitionModelItem){
 
             modifier = Modifier.fillMaxWidth(),
             onClick = {
-                navController.navigate("inscription_competitors_page/${data.id}")
+                navController.navigate("inscription_competitors_page/${data.id}:${data.age_min},${data.age_max},${data.gender}")
             }, colors = ButtonDefaults.buttonColors(
                 containerColor = Color(0xFFCCA43B),
                 contentColor = Color.Black),

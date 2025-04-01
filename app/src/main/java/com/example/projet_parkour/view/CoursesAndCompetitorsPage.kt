@@ -219,7 +219,7 @@ fun CompetitorsPage(
     viewModel: CompetitorsViewModel,
     competitionId: Int
 ) {
-    val competitorResult = viewModel.competitorResult.observeAsState()
+    val competitorByCompetitionResult = viewModel.competitorByCompetitionResult.observeAsState()
 
     LaunchedEffect(Unit) {
         viewModel.getCompetitorsByCompetitionId(competitionId)
@@ -235,7 +235,7 @@ fun CompetitorsPage(
             .background(Color(0xFF242F40))
             .padding(top=20.dp,start = 10.dp, end = 10.dp, bottom = 20.dp)
     ) {
-        when(val result = competitorResult.value){
+        when(val result = competitorByCompetitionResult.value){
             is NetworkResponse.Error -> {
                 Text(text = result.message)
             }

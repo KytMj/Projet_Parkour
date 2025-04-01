@@ -1,6 +1,7 @@
 package com.example.projet_parkour.view
 
 import android.content.Context
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -92,13 +93,16 @@ fun AvailableObstaclesPage(
 
             is NetworkResponse.Success -> {
                 val data = result.data
+                val removeObstacles = ObstacleModel()
+
                 for(obstacle in obstaclesList){
                     data.forEach { element ->
-                        if (obstacle.obstacle_name == element.name){
-                            data.remove(element)
+                        if(element.name == obstacle.obstacle_name){
+                            removeObstacles.add(element)
                         }
                     }
                 }
+                data.removeAll(removeObstacles)
                 val obstacles = ArrayList<String>()
 
                 data.forEach { element ->
