@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,7 +27,7 @@ import androidx.navigation.NavController
 @Composable
 fun Header(modifier: Modifier, navController: NavController, isEnable: MutableState<Boolean>){
     Row(modifier = Modifier.fillMaxWidth()
-        .background(color = Color(0xFF242F40)),
+        .background(color = MaterialTheme.colorScheme.primary),
         horizontalArrangement = Arrangement.End,
         verticalAlignment = Alignment.CenterVertically
     )
@@ -36,7 +37,7 @@ fun Header(modifier: Modifier, navController: NavController, isEnable: MutableSt
                 navController.navigate("competitions_page")
             },
             colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFFCCA43B),
+                containerColor = MaterialTheme.colorScheme.tertiary,
                 contentColor = Color.Black),
             shape = RoundedCornerShape(15)
         ) {
