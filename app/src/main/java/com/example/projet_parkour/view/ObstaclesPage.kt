@@ -25,9 +25,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.projet_parkour.api.NetworkResponse
+import com.example.projet_parkour.model.CompetitorModel
 import com.example.projet_parkour.model.CourseObstacleModel
+import com.example.projet_parkour.model.ObstacleModel
 import com.example.projet_parkour.view.utils.DropdownMenuComposable
 import com.example.projet_parkour.view.utils.FloatingButtonAdd
+import com.example.projet_parkour.viewmodel.CompetitorsViewModel
 import com.example.projet_parkour.viewmodel.ObstaclesViewModel
 
 @Composable
@@ -45,6 +48,7 @@ fun ObstaclesPage(
 
     Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)){
         Column {
+            AddToListRegisteredObstacles(viewModel, obstaclesList)
             ObstaclesInParkourPage(modifier, viewModel, courseId, obstaclesList)
             if(isEnableConstructMode.value){
                 AvailableObstaclesPage(modifier, viewModel, selectedText, obstaclesList)
@@ -87,8 +91,14 @@ fun AvailableObstaclesPage(
             }
 
             is NetworkResponse.Success -> {
-                val data = result.data //TOUS LES OBSTACLES
-                    //enlever ceux déjà enregistrer... pas de vérif non plus
+                val data = result.data
+                for(obstacle in obstaclesList){
+                    data.forEach { element ->
+                        if (obstacle.obstacle_name == element.name){
+                            data.remove(element)
+                        }
+                    }
+                }
                 val obstacles = ArrayList<String>()
 
                 data.forEach { element ->
@@ -130,7 +140,6 @@ fun ObstaclesInParkourPage(
             }
 
             is NetworkResponse.Success -> {
-                result.data.forEach{element -> obstaclesList.add(element)}
                 LazyColumn {
                     items(result.data.size){ index ->
                         val data = result.data[index]
@@ -147,5 +156,18 @@ fun ObstaclesInParkourPage(
             }
             null -> {}
         }
+    }
+}
+
+private fun AddToListRegisteredObstacles(viewModel: ObstaclesViewModel, registeredObstaclesList: CourseObstacleModel){
+    val competitorByCompetitionResult = viewModel.obstaclesByCourseResult
+
+    when(val result = competitorByCompetitionResult.value){
+        is NetworkResponse.Success -> {
+            registeredObstaclesList.addAll(result.data)
+        }
+        null -> {}
+        is NetworkResponse.Error -> {}
+        is NetworkResponse.Loading -> {}
     }
 }
