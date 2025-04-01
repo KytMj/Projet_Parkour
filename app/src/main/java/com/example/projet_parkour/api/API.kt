@@ -2,6 +2,7 @@ package com.example.projet_parkour.api
 
 import com.example.projet_parkour.model.CompetitionModel
 import com.example.projet_parkour.model.CompetitionModelItem
+import com.example.projet_parkour.model.CompetitorIdModelItem
 import com.example.projet_parkour.model.CompetitorModel
 import com.example.projet_parkour.model.CompetitorModelItem
 import com.example.projet_parkour.model.CourseObstacleModel
@@ -11,6 +12,7 @@ import com.example.projet_parkour.model.CreationCompetitionModelItem
 import com.example.projet_parkour.model.CreationCompetitorModelItem
 import com.example.projet_parkour.model.CreationCourseModelItem
 import com.example.projet_parkour.model.CreationObstacleModelItem
+import com.example.projet_parkour.model.MessageModel
 import com.example.projet_parkour.model.ObstacleModel
 import com.example.projet_parkour.model.ObstacleModelItem
 import com.example.projet_parkour.model.PerformanceModel
@@ -18,6 +20,7 @@ import com.example.projet_parkour.model.PerformanceObstacleModel
 import retrofit2.Call
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
@@ -35,7 +38,7 @@ interface API {
     suspend fun createCompetitions(@Body competition : CreationCompetitionModelItem) : Response<CompetitionModelItem>
 
     @POST("/api/competitions/{id}/add_competitor")
-    suspend fun addCompetitorCompetition(@Path("id") id: Int, @Body competitorId : Int) : Response<CompetitorModelItem>
+    suspend fun addCompetitorCompetition(@Path("id") id: Int, @Body competitorId : CompetitorIdModelItem) : Response<MessageModel>
 
 
     //COMPETITORS
@@ -50,6 +53,9 @@ interface API {
 
     @POST("/api/competitors")
     suspend fun createCompetitor(@Body competitor : CreationCompetitorModelItem) : Response<CompetitorModelItem>
+
+    @DELETE("/api/competitors/{id}")
+    suspend fun deleteCompetitor(@Path("id") competitorId : CompetitorIdModelItem) : Response<MessageModel>
 
 
     //COURSES

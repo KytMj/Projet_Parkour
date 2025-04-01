@@ -1,5 +1,7 @@
 package com.example.projet_parkour.view
 
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -19,12 +21,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.projet_parkour.api.NetworkResponse
-import com.example.projet_parkour.model.CreationCompetitionModelItem
 import com.example.projet_parkour.viewmodel.CompetitionsViewModel
 
 
@@ -32,7 +35,8 @@ import com.example.projet_parkour.viewmodel.CompetitionsViewModel
 fun CreateCompetitionPage(
     modifier: Modifier,
     viewModel: CompetitionsViewModel,
-    navController: NavController
+    navController: NavController,
+    context: Context
 ){
     val createCompetitionResult = viewModel.createCompetitionResult.observeAsState()
 
@@ -42,7 +46,11 @@ fun CreateCompetitionPage(
 
     val radioOptionsGender = listOf("Homme","Femme")
     val selectedOptionGender = remember { mutableStateOf(radioOptionsGender[0]) }
-    var checkedHasRetry = remember { mutableStateOf(false) }
+    val checkedHasRetry = remember { mutableStateOf(false) }
+
+    var isValidName by remember { mutableStateOf(false) }
+    var isValidMaxAge by remember { mutableStateOf(false) }
+    var isValidMiniAge by remember { mutableStateOf(false) }
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -50,12 +58,20 @@ fun CreateCompetitionPage(
             .fillMaxSize()
             .padding(16.dp)
     ) {
+
+        //NOM COMPETITION
         OutlinedTextField(
             value = nameState ?: "",
             label = { Text("Nom de la compétition") },
-            onValueChange = { viewModel.nameCompetition.postValue(it) },
+            onValueChange = { input ->
+                viewModel.nameCompetition.postValue(input)
+                isValidName = input.isNotEmpty() && viewModel.isValidName(input)
+                            },
             modifier = Modifier.fillMaxWidth()
         )
+        if (!isValidName){
+            Text(text = "Champ invalide", color = Color.Red)
+        }
         Spacer(modifier = Modifier.size(4.dp))
 
         Row {
@@ -80,20 +96,34 @@ fun CreateCompetitionPage(
         }
         Spacer(modifier = Modifier.size(4.dp))
 
+        //AGE MINIMUM
         OutlinedTextField(
             value = ageMiniState ?: "",
             label = { Text("Âge minimum") },
-            onValueChange = { viewModel.ageMiniCompet.postValue(it) },
+            onValueChange = {
+                viewModel.ageMiniCompet.postValue(it)
+                isValidMiniAge = it.isNotEmpty() && viewModel.isValidMinAge(it)
+                            },
             modifier = Modifier.fillMaxWidth()
         )
+        if (!isValidMiniAge){
+            Text(text = "Champ invalide", color = Color.Red)
+        }
         Spacer(modifier = Modifier.size(4.dp))
 
+        //AGE MAXIMUM
         OutlinedTextField(
             value = ageMaxiState ?: "",
             label = { Text("Âge maximum") },
-            onValueChange = { viewModel.ageMaxiCompet.postValue(it) },
+            onValueChange = {
+                viewModel.ageMaxiCompet.postValue(it)
+                isValidMaxAge = it.isNotEmpty() && viewModel.isValidMaxAge(it)
+            },
             modifier = Modifier.fillMaxWidth()
         )
+        if (!isValidMaxAge){
+            Text(text = "Champ invalide", color = Color.Red)
+        }
         Spacer(modifier = Modifier.size(4.dp))
 
         Row {
@@ -111,36 +141,16 @@ fun CreateCompetitionPage(
         Spacer(modifier = Modifier.size(4.dp))
 
         Button(onClick = {
-            val gender = when (selectedOptionGender.value) {
-                "Homme" -> "H"; "Femme" -> "F"
-                else -> {
-                    ""
-                }
+            if(isValidName && isValidMiniAge && isValidMaxAge){
+                val response = viewModel.checkAndAddCompetition(selectedOptionGender, checkedHasRetry, context)
+                if(response) navController.navigate("competitions_page")
             }
-
-            val competition = CreationCompetitionModelItem(
-                age_max = ageMaxiState?.toInt() ?: 0,
-                age_min = ageMiniState?.toInt() ?: 0,
-                gender = gender,
-                has_retry = if(checkedHasRetry.value) 1 else 0,
-                name = nameState.toString()
-            );
-
-            viewModel.createCompetition(competition);
+            else{
+                Toast.makeText(context, "Des champs ne sont pas valides", Toast.LENGTH_LONG).show()
+            }
         }) {
             Text(text = "Enregistrer")
         }
-        when (val result = createCompetitionResult.value) {
-            is NetworkResponse.Error -> {
-                Text(text = result.message)
-            }
 
-            is NetworkResponse.Loading -> {
-                CircularProgressIndicator()
-            }
-
-            is NetworkResponse.Success -> navController.navigate("competitions_page")
-            null -> {}
-        }
     }
 }

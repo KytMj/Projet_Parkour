@@ -1,5 +1,6 @@
 package com.example.projet_parkour.view
 
+import android.content.Context
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -27,6 +28,7 @@ fun CreateObstaclePage(
     viewModel: ObstaclesViewModel,
     navController: NavController,
     courseId: Int,
+    context: Context,
 ) {
     val createCourseResult = viewModel.createObstacleResult.observeAsState()
 

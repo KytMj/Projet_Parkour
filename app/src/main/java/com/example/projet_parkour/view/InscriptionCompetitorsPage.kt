@@ -34,8 +34,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.projet_parkour.api.NetworkResponse
+import com.example.projet_parkour.model.CompetitorIdModelItem
 import com.example.projet_parkour.model.CompetitorModel
 import com.example.projet_parkour.model.CompetitorModelItem
+import com.example.projet_parkour.model.MessageModel
 import com.example.projet_parkour.ui.theme.Pink40
 import com.example.projet_parkour.view.utils.DropdownMenuComposable
 import com.example.projet_parkour.viewmodel.CompetitorsViewModel
@@ -75,7 +77,8 @@ fun InscriptionCompetitorsPage(
                 idAddCompetitor.value = selectedText.value.split(".").get(0).substring(3).toInt()
             }
             Button(onClick = {
-                RegisterCompetitorOnClick(idAddCompetitor.intValue, competitionId, context, viewModel, addCompetitorResult)
+                val result = RegisterCompetitorOnClick(idAddCompetitor.intValue, competitionId, context, viewModel, addCompetitorResult)
+                if (result) navController.navigate("inscription_competitors_page/${competitionId}:${ageMin},${ageMax},${gender}")
             }) {
                 Text("Inscrire un participant")
             }
@@ -86,7 +89,7 @@ fun InscriptionCompetitorsPage(
                 .padding(bottom = 40.dp, end = 30.dp)
                 .align(Alignment.BottomEnd),
             onClick = {
-                navController.navigate("create_competitor_page")
+                navController.navigate("create_competitor_page/${competitionId}:${ageMin},${ageMax},${gender}")
             },
             containerColor = Pink40,
             contentColor = Color.White,
@@ -188,25 +191,25 @@ fun RegisteredCompetitorsPage(
     }
 }
 
-private fun RegisterCompetitorOnClick(
+private fun RegisterCompetitorOnClick (
     idAddCompetitor: Int,
     competitionId: Int,
     context: Context,
     viewModel: CompetitorsViewModel,
-    addCompetitorResult: State<NetworkResponse<CompetitorModelItem>?>
-) {
+    addCompetitorResult: State<NetworkResponse<MessageModel>?>
+): Boolean {
     if(idAddCompetitor != -1) {
-        viewModel.addCompetitorCompetition(idAddCompetitor, competitionId)
+        viewModel.addCompetitorCompetition(CompetitorIdModelItem(idAddCompetitor), competitionId)
         if (addCompetitorResult.value is NetworkResponse.Error) {
-            Toast.makeText(
-                context,
-                (addCompetitorResult.value as NetworkResponse.Error).message,
-                Toast.LENGTH_LONG
-            ).show()
+            val result = (addCompetitorResult.value as NetworkResponse.Error)
+            Toast.makeText(context, result.message, Toast.LENGTH_LONG).show()
+            return false
         }
+        return true
     }
     else{
         Toast.makeText(context, "Vous n'avez pas sélectionné de participants à inscrire", Toast.LENGTH_LONG).show()
+        return false
     }
 }
 

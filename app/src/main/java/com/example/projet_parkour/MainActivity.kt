@@ -137,16 +137,36 @@ class MainActivity : ComponentActivity() {
                                 CreateCompetitionPage(
                                     modifier = Modifier.padding(16.dp),
                                     competitionsViewModel,
-                                    navController
-                                )
-                            }
-                            composable("create_competitor_page") {
-                                CreateCompetitorPage(
-                                    modifier = Modifier.padding(16.dp),
-                                    competitorsViewModel,
                                     navController,
                                     context
                                 )
+                            }
+                            composable("create_competitor_page/{competitionId}:{competitionAgeMin},{competitionAgeMax},{competitionGender}", arguments = listOf(
+                                navArgument("competitionId"){
+                                    type = NavType.IntType
+                                },
+                                navArgument("competitionAgeMin"){
+                                    type = NavType.IntType
+                                },
+                                navArgument("competitionAgeMax"){
+                                    type = NavType.IntType
+                                },
+                                navArgument("competitionGender"){
+                                    type = NavType.StringType
+                                },
+                            )) { backStackEntry ->
+                                val competitionId = backStackEntry.arguments?.getInt("competitionId")
+                                val ageMin = backStackEntry.arguments?.getInt("competitionAgeMin")
+                                val ageMax = backStackEntry.arguments?.getInt("competitionAgeMax")
+                                val gender = backStackEntry.arguments?.getString("competitionGender")
+                                if (competitionId != null && ageMin != null && ageMax != null && gender != null) {
+                                    CreateCompetitorPage(
+                                        modifier = Modifier.padding(16.dp),
+                                        competitorsViewModel,
+                                        navController,
+                                        context, competitionId, ageMin, ageMax, gender
+                                    )
+                                }
                             }
                             composable("create_course_page/{competitionId}", arguments = listOf(
                                 navArgument("competitionId"){
@@ -175,7 +195,8 @@ class MainActivity : ComponentActivity() {
                                         modifier = Modifier.padding(16.dp),
                                         obstaclesViewModel,
                                         navController = navController,
-                                        courseId
+                                        courseId,
+                                        context
                                     )
                                 }
                             }

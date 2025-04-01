@@ -20,3 +20,7 @@ data class CourseObstacleModelItem(
     val obstacle_name: String,
     val position : Int
 )
+
+data class ObstacleIdModelItem(
+    val obstacle_id: Int
+)

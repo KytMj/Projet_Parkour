@@ -22,3 +22,7 @@ data class CreationCompetitorModelItem(
     val last_name: String,
     val phone: String
 )
+
+data class CompetitorIdModelItem(
+    val competitor_id: Int
+)
