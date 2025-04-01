@@ -1,23 +1,20 @@
 package com.example.projet_parkour.view
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.automirrored.rounded.List
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -28,19 +25,20 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.projet_parkour.api.NetworkResponse
-import com.example.projet_parkour.ui.theme.Pink40
 import com.example.projet_parkour.viewmodel.CompetitorsViewModel
 import com.example.projet_parkour.viewmodel.CoursesViewModel
 
@@ -52,13 +50,60 @@ fun DisplayCoursesCompetitors(
     competitionId: Int,
     navController: NavController
 ){
-    Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
-        Column(modifier = Modifier.fillMaxSize().fillMaxHeight()) {
-            CoursesPage(modifier, coursesViewModel, competitionId)
-            CompetitorsPage(modifier, competitorsViewModel, competitionId)
+    var currentPage by remember { mutableStateOf<String?>(null) }
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .background(MaterialTheme.colorScheme.background)) {
+        Column(modifier = Modifier.fillMaxSize() .fillMaxHeight()) {
+            Button(modifier = Modifier.padding(5.dp).fillMaxWidth(),
+                shape = RoundedCornerShape(15),
+                colors = ButtonDefaults.buttonColors(contentColor = Color.Black, containerColor = Color(0xFFCCA43B)),
+                onClick = {
+                    currentPage = if (currentPage == "Courses") null else "Courses"
+                }
+            ) {
+                Row( modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Courses de la compétition",
+                        modifier = Modifier.weight(1f))
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Rounded.List,
+                        contentDescription = "List Icon"
+                    )
+                }
+            }
+            AnimatedVisibility(visible = currentPage == "Courses") {
+                CoursesPage(modifier, coursesViewModel, competitionId)
+            }
+
+            Button(modifier = Modifier.padding(5.dp).fillMaxWidth(),
+                shape = RoundedCornerShape(15),
+                colors = ButtonDefaults.buttonColors(contentColor = Color.Black, containerColor = Color(0xFFCCA43B)),
+                onClick = {
+                    currentPage = if (currentPage == "Competitors") null else "Competitors" }
+            ) {
+                Row( modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Concurrents de la compétition",
+                        modifier = Modifier.weight(1f))
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Rounded.List,
+                        contentDescription = "List Icon"
+                    )
+                }
+            }
+            AnimatedVisibility(visible = currentPage == "Competitors") {
+                CompetitorsPage(modifier, competitorsViewModel, competitionId)
+            }
         }
         FloatingActionButton(
-            modifier = Modifier.padding(bottom = 50.dp).align(Alignment.BottomCenter),
+            modifier = Modifier
+                .padding(bottom = 10.dp)
+                .align(Alignment.BottomCenter),
             onClick = {
                 //TODO chrono
                 //navController.navigate("")
@@ -86,13 +131,14 @@ fun CoursesPage(
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.fillMaxHeight(0.5f).padding(10.dp).fillMaxWidth().clip(shape = RoundedCornerShape(20.dp)).background(Color(0xFF242F40)).padding(start = 10.dp, end = 10.dp, bottom = 20.dp)
+        modifier = Modifier
+            .fillMaxHeight(0.8f)
+            .padding(10.dp)
+            .fillMaxWidth()
+            .clip(shape = RoundedCornerShape(20.dp))
+            .background(Color(0xFF242F40))
+            .padding(top=20.dp,start = 10.dp, end = 10.dp, bottom = 20.dp)
     ) {
-        Text(text = "Courses de la compétition n°${competitionId}",color = Color.White,
-            fontSize = 20.sp,
-            modifier = Modifier.padding(top = 20.dp, bottom = 20.dp),
-            fontWeight = FontWeight.Bold)
-
         when(val result = coursesResult.value){
             is NetworkResponse.Error -> {
                 Text(text = result.message)
@@ -106,7 +152,7 @@ fun CoursesPage(
                         val data = result.data[index]
                         Card(
                             colors = CardDefaults.cardColors(containerColor = Color(0xFF748cab)),
-                            modifier = Modifier.padding(start = 10.dp, end = 10.dp, bottom = 20.dp),
+                            modifier = Modifier.padding(top=20.dp,start = 10.dp, end = 10.dp, bottom = 20.dp),
                             onClick = {
                                 //TODO accès au chrono ?
                             }
@@ -114,12 +160,16 @@ fun CoursesPage(
                             Column (modifier = Modifier.padding(25.dp)){
                                 Row{
                                     Text("N°" + data.position,
-                                        modifier = Modifier.padding(end = 10.dp).align(Alignment.CenterVertically),
+                                        modifier = Modifier
+                                            .padding(end = 10.dp)
+                                            .align(Alignment.CenterVertically),
                                         fontWeight = FontWeight.Bold)
                                     Column {
-                                        Text("Nom de la course : " + data.name)
-                                        Text("Durée maximum de la course : " + data.max_duration)
-                                        Text("Course terminée ? " + if(data.is_over == 1) "Oui" else "Non") }
+
+                                        Text("Nom de la course : " + data.name, fontWeight =FontWeight.Bold )
+                                        Text("Durée maximum : " + data.max_duration)
+                                        Text(text = if(data.is_over == 1) "Course terminée" else "Course pas terminée",
+                                            color = if(data.is_over == 1) Color.Green else Color.Red) }
                                 }
                             }
                         }
@@ -146,12 +196,14 @@ fun CompetitorsPage(
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.fillMaxHeight(1f).padding(10.dp).fillMaxWidth().clip(shape = RoundedCornerShape(20.dp)).background(Color(0xFF242F40)).padding(start = 10.dp, end = 10.dp, bottom = 20.dp)
+        modifier = Modifier
+            .fillMaxHeight(0.9f)
+            .padding(10.dp)
+            .fillMaxWidth()
+            .clip(shape = RoundedCornerShape(20.dp))
+            .background(Color(0xFF242F40))
+            .padding(top=20.dp,start = 10.dp, end = 10.dp, bottom = 20.dp)
     ) {
-        Text(text = "Concurrents de la compétition n°${competitionId} ",color = Color.White,
-            fontSize = 20.sp,
-            modifier = Modifier.padding(top = 20.dp, bottom = 20.dp),
-            fontWeight = FontWeight.Bold)
         when(val result = competitorResult.value){
             is NetworkResponse.Error -> {
                 Text(text = result.message)
@@ -167,7 +219,9 @@ fun CompetitorsPage(
                         val data = result.data[index]
                         Card(
                             colors = CardDefaults.cardColors(containerColor = Color(0xFF748cab)),
-                            modifier = Modifier.fillMaxWidth().padding(start = 10.dp, end = 10.dp, bottom = 20.dp)
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top=20.dp,start = 10.dp, end = 10.dp, bottom = 20.dp)
                         ) {
                             Column (modifier = Modifier.padding(25.dp)){
                                 Text("Nom : " + data.last_name)
