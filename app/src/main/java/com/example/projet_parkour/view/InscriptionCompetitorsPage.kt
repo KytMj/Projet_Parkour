@@ -2,6 +2,7 @@ package com.example.projet_parkour.view
 
 import android.content.Context
 import android.os.Build
+import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
@@ -24,6 +25,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -54,25 +56,35 @@ fun InscriptionCompetitorsPage(
     context: Context
 ) {
     val selectedText = remember { mutableStateOf("") }
-    var idAddCompetitor = remember { mutableStateOf(-1) }
+    var idAddCompetitor = remember { mutableIntStateOf(-1) }
     val registeredCompetitorsList = CompetitorModel()
     val addCompetitorResult = viewModel.addCompetitorCompetitionResult.observeAsState()
 
-    Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)){
+    LaunchedEffect(Unit) {
+        viewModel.getCompetitors()
+        viewModel.getCompetitorsByCompetitionId(competitionId)
+    }
+
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .background(MaterialTheme.colorScheme.background)){
         Column {
+            AddToListRegisteredCompetitors(viewModel, registeredCompetitorsList)
             PotentialsCompetitorsPage(modifier, viewModel, ageMin, ageMax, gender, selectedText, registeredCompetitorsList)
             if (selectedText.value != "") {
                 idAddCompetitor.value = selectedText.value.split(".").get(0).substring(3).toInt()
             }
             Button(onClick = {
-                RegisterCompetitorOnClick(idAddCompetitor.value, competitionId, context, viewModel, addCompetitorResult)
+                RegisterCompetitorOnClick(idAddCompetitor.intValue, competitionId, context, viewModel, addCompetitorResult)
             }) {
                 Text("Inscrire un participant")
             }
-            RegisteredCompetitorsPage(modifier, viewModel, competitionId, registeredCompetitorsList)
+            RegisteredCompetitorsPage(modifier, viewModel, competitionId)
         }
         FloatingActionButton(
-            modifier = Modifier.padding(bottom = 40.dp, end = 30.dp).align(Alignment.BottomEnd),
+            modifier = Modifier
+                .padding(bottom = 40.dp, end = 30.dp)
+                .align(Alignment.BottomEnd),
             onClick = {
                 navController.navigate("create_competitor_page")
             },
@@ -98,10 +110,6 @@ fun PotentialsCompetitorsPage(
 ) {
     val competitorResult = viewModel.competitorResult.observeAsState()
 
-    LaunchedEffect(Unit) {
-        viewModel.getCompetitors()
-    }
-
     Column(
         modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -117,7 +125,9 @@ fun PotentialsCompetitorsPage(
 
             is NetworkResponse.Success -> {
                 val data = result.data
-                data.removeAll(registeredCompetitorsList) //don't work.... Why....
+                Log.d("deboggage", registeredCompetitorsList.size.toString())
+                data.removeAll(registeredCompetitorsList)
+
                 val competitors = ArrayList<String>()
 
                 data.forEach { element ->
@@ -138,21 +148,16 @@ fun PotentialsCompetitorsPage(
 fun RegisteredCompetitorsPage(
     modifier: Modifier,
     viewModel: CompetitorsViewModel,
-    competitionId: Int,
-    competitorsList: CompetitorModel
+    competitionId: Int
 ) {
-    val competitorResult = viewModel.competitorResult.observeAsState()
-
-    LaunchedEffect(Unit) {
-        viewModel.getCompetitorsByCompetitionId(competitionId)
-    }
+    val competitorByCompetitionResult = viewModel.competitorByCompetitionResult.observeAsState()
 
     Column(
         modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(modifier = Modifier.padding(bottom = 10.dp), text ="Participants inscrits à la compétition")
-        when(val result = competitorResult.value){
+        when(val result = competitorByCompetitionResult.value){
             is NetworkResponse.Error -> {
                 Text(text = result.message)
             }
@@ -162,7 +167,6 @@ fun RegisteredCompetitorsPage(
             }
 
             is NetworkResponse.Success -> {
-                result.data.forEach{element -> competitorsList.add(element)}
                 LazyColumn {
                     items(result.data.size){ index ->
                         val data = result.data[index]
@@ -170,7 +174,9 @@ fun RegisteredCompetitorsPage(
                             colors = CardDefaults.cardColors(
                                 containerColor = MaterialTheme.colorScheme.primaryContainer
                             ),
-                            modifier = Modifier.fillMaxWidth().padding(start = 10.dp, end = 10.dp, bottom = 5.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(start = 10.dp, end = 10.dp, bottom = 5.dp),
                         ) {
                             Text(modifier = Modifier.padding(10.dp), text = data.last_name.uppercase() + " " + data.first_name + data.gender + data.born_at)
                         }
@@ -182,19 +188,15 @@ fun RegisteredCompetitorsPage(
     }
 }
 
-fun RegisterCompetitorOnClick(
+private fun RegisterCompetitorOnClick(
     idAddCompetitor: Int,
     competitionId: Int,
     context: Context,
     viewModel: CompetitorsViewModel,
     addCompetitorResult: State<NetworkResponse<CompetitorModelItem>?>
 ) {
-
     if(idAddCompetitor != -1) {
         viewModel.addCompetitorCompetition(idAddCompetitor, competitionId)
-        if (addCompetitorResult.value is NetworkResponse.Success) {
-            Toast.makeText(context, "Insertion réussie !", Toast.LENGTH_LONG).show()
-        }
         if (addCompetitorResult.value is NetworkResponse.Error) {
             Toast.makeText(
                 context,
@@ -204,6 +206,19 @@ fun RegisterCompetitorOnClick(
         }
     }
     else{
-        Toast.makeText(context, "Vous n'avez pas sélectionner de participants à inscrire", Toast.LENGTH_LONG).show()
+        Toast.makeText(context, "Vous n'avez pas sélectionné de participants à inscrire", Toast.LENGTH_LONG).show()
+    }
+}
+
+private fun AddToListRegisteredCompetitors(viewModel: CompetitorsViewModel, registeredCompetitorsList: CompetitorModel){
+    val competitorByCompetitionResult = viewModel.competitorByCompetitionResult
+
+    when(val result = competitorByCompetitionResult.value){
+        is NetworkResponse.Success -> {
+            registeredCompetitorsList.addAll(result.data)
+        }
+        null -> {}
+        is NetworkResponse.Error -> {}
+        is NetworkResponse.Loading -> {}
     }
 }

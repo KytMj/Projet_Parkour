@@ -1,6 +1,7 @@
 package com.example.projet_parkour.view
 
 import android.content.Context
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,9 +32,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.projet_parkour.api.NetworkResponse
+import com.example.projet_parkour.model.CompetitorModel
 import com.example.projet_parkour.model.CourseObstacleModel
+import com.example.projet_parkour.model.ObstacleModel
 import com.example.projet_parkour.view.utils.DropdownMenuComposable
 import com.example.projet_parkour.view.utils.FloatingButtonAdd
+import com.example.projet_parkour.viewmodel.CompetitorsViewModel
 import com.example.projet_parkour.viewmodel.ObstaclesViewModel
 
 @Composable
@@ -51,6 +55,7 @@ fun ObstaclesPage(
 
     Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)){
         Column {
+            AddToListRegisteredObstacles(viewModel, obstaclesList)
             ObstaclesInParkourPage(modifier, viewModel, courseId, obstaclesList)
             if(isEnableConstructMode.value){
                 AvailableObstaclesPage(modifier, viewModel, selectedText, obstaclesList)
@@ -95,6 +100,16 @@ fun AvailableObstaclesPage(
             is NetworkResponse.Success -> {
                 val data = result.data //TOUS LES OBSTACLES
                     //enlever ceux déjà enregistré... pas de vérif non plus
+                val removeObstacles = ObstacleModel()
+
+                for(obstacle in obstaclesList){
+                    data.forEach { element ->
+                        if(element.name == obstacle.obstacle_name){
+                            removeObstacles.add(element)
+                        }
+                    }
+                }
+                data.removeAll(removeObstacles)
                 val obstacles = ArrayList<String>()
 
                 data.forEach { element ->
@@ -147,14 +162,14 @@ fun ObstaclesInParkourPage(
                 is NetworkResponse.Loading -> {
                     CircularProgressIndicator()
                 }
-
                 is NetworkResponse.Success -> {
-                    result.data.forEach { element -> obstaclesList.add(element) }
                     LazyColumn {
                         items(result.data.size) { index ->
                             val data = result.data[index]
                             Card(
-                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.primary
+                                ),
                                 modifier = Modifier.fillMaxWidth()
                                     .padding(start = 10.dp, end = 10.dp, bottom = 5.dp),
                             ) {
@@ -163,9 +178,21 @@ fun ObstaclesInParkourPage(
                         }
                     }
                 }
-
                 null -> {}
             }
         }
+    }
+}
+
+private fun AddToListRegisteredObstacles(viewModel: ObstaclesViewModel, registeredObstaclesList: CourseObstacleModel){
+    val competitorByCompetitionResult = viewModel.obstaclesByCourseResult
+
+    when(val result = competitorByCompetitionResult.value){
+        is NetworkResponse.Success -> {
+            registeredObstaclesList.addAll(result.data)
+        }
+        null -> {}
+        is NetworkResponse.Error -> {}
+        is NetworkResponse.Loading -> {}
     }
 }

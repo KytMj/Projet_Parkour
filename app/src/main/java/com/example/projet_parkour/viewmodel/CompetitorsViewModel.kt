@@ -25,6 +25,9 @@ class CompetitorsViewModel : ViewModel() {
     private val _competitorResult = MutableLiveData<NetworkResponse<CompetitorModel>>()
     val competitorResult : LiveData<NetworkResponse<CompetitorModel>> = _competitorResult
 
+    private val _competitorByCompetitionResult = MutableLiveData<NetworkResponse<CompetitorModel>>()
+    val competitorByCompetitionResult : LiveData<NetworkResponse<CompetitorModel>> = _competitorByCompetitionResult
+
     private val _createCompetitorResult = MutableLiveData<NetworkResponse<CompetitorModelItem>>()
     val createCompetitorResult : LiveData<NetworkResponse<CompetitorModelItem>> = _createCompetitorResult
 
@@ -38,20 +41,20 @@ class CompetitorsViewModel : ViewModel() {
     var bornAt = MutableLiveData("")
 
     fun getCompetitorsByCompetitionId(competitionId : Int){
-        _competitorResult.value = NetworkResponse.Loading
+        _competitorByCompetitionResult.value = NetworkResponse.Loading
         viewModelScope.launch {
             try {
                 val response = api.getCompetitorsByCompetitionId(competitionId)
                 if (response.isSuccessful) {
                     response.body()?.let {
-                        _competitorResult.value = NetworkResponse.Success(it)
+                        _competitorByCompetitionResult.value = NetworkResponse.Success(it)
                     }
                 } else {
-                    _competitorResult.value = NetworkResponse.Error("Les données n'ont pas réussi à être chargées. (error "+response.code().toString() + ")");
+                    _competitorByCompetitionResult.value = NetworkResponse.Error("Les données n'ont pas réussi à être chargées. (error "+response.code().toString() + ")");
                 }
             }
             catch (ex : Exception){
-                _competitorResult.value = NetworkResponse.Error("Les données n'ont pas réussi à être chargées. \n"+ ex.toString() + "\nmessage :" + ex.message)
+                _competitorByCompetitionResult.value = NetworkResponse.Error("Les données n'ont pas réussi à être chargées. \n"+ ex.toString() + "\nmessage :" + ex.message)
             }
         }
     }
