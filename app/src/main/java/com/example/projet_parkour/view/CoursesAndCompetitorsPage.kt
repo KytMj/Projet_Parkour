@@ -26,6 +26,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,11 +35,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.projet_parkour.api.NetworkResponse
+import com.example.projet_parkour.view.utils.FloatingButtonAdd
 import com.example.projet_parkour.viewmodel.CompetitorsViewModel
 import com.example.projet_parkour.viewmodel.CoursesViewModel
 
@@ -48,7 +49,8 @@ fun DisplayCoursesCompetitors(
     coursesViewModel: CoursesViewModel,
     competitorsViewModel: CompetitorsViewModel,
     competitionId: Int,
-    navController: NavController
+    navController: NavController,
+    isEnableConstructMode: MutableState<Boolean>
 ){
     var currentPage by remember { mutableStateOf<String?>(null) }
     Box(modifier = Modifier
@@ -75,7 +77,7 @@ fun DisplayCoursesCompetitors(
                 }
             }
             AnimatedVisibility(visible = currentPage == "Courses") {
-                CoursesPage(modifier, coursesViewModel, competitionId)
+                CoursesPage(modifier, coursesViewModel,navController, competitionId)
             }
 
             Button(modifier = Modifier.padding(5.dp).fillMaxWidth(),
@@ -114,6 +116,13 @@ fun DisplayCoursesCompetitors(
         ) {
             Text(text = "Accéder au chrono", modifier = Modifier.padding(start = 10.dp, end = 10.dp))
         }
+        if (isEnableConstructMode.value){
+            FloatingButtonAdd(
+                modifier = Modifier.padding(bottom = 50.dp, end = 10.dp).align(Alignment.BottomEnd),
+                route = "create_course_page/${competitionId}",
+                navController = navController,
+            )
+        }
     }
 }
 
@@ -121,6 +130,7 @@ fun DisplayCoursesCompetitors(
 fun CoursesPage(
     modifier: Modifier,
     viewModel: CoursesViewModel,
+    navController: NavController,
     competitionId: Int
 ){
     val coursesResult = viewModel.coursesResult.observeAsState()
@@ -154,22 +164,43 @@ fun CoursesPage(
                             colors = CardDefaults.cardColors(containerColor = Color(0xFF748cab)),
                             modifier = Modifier.padding(top=20.dp,start = 10.dp, end = 10.dp, bottom = 20.dp),
                             onClick = {
-                                //TODO accès au chrono ?
+                                /*if(!(data.is_over)){
+                                    //TODO accès au chrono ?
+                                }*/
                             }
                         ) {
                             Column (modifier = Modifier.padding(25.dp)){
-                                Row{
-                                    Text("N°" + data.position,
+                                Row {
+                                    Text(
+                                        "N°" + data.position,
                                         modifier = Modifier
                                             .padding(end = 10.dp)
                                             .align(Alignment.CenterVertically),
-                                        fontWeight = FontWeight.Bold)
+                                        fontWeight = FontWeight.Bold
+                                    )
                                     Column {
-
-                                        Text("Nom de la course : " + data.name, fontWeight =FontWeight.Bold )
+                                        Text(
+                                            "Nom de la course : " + data.name,
+                                            fontWeight = FontWeight.Bold
+                                        )
                                         Text("Durée maximum : " + data.max_duration)
-                                        Text(text = if(data.is_over == 1) "Course terminée" else "Course pas terminée",
-                                            color = if(data.is_over == 1) Color.Green else Color.Red) }
+                                        Text(
+                                            text = if (data.is_over == 1) "Course terminée" else "Course pas terminée",
+                                            color = if (data.is_over == 1) Color.Green else Color.Red
+                                        )
+                                        Button(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            onClick = {
+                                                navController.navigate("obstacles_page/${data.id}")
+                                            }, colors = ButtonDefaults.buttonColors(
+                                                containerColor = Color(0xFFCCA43B),
+                                                contentColor = Color.Black
+                                            ),
+                                            shape = RoundedCornerShape(30)
+                                        ) {
+                                            Text("Obstacles")
+                                        }
+                                    }
                                 }
                             }
                         }

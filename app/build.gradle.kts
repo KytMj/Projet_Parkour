@@ -67,10 +67,10 @@ dependencies {
     //Runtime LiveData
     implementation("androidx.compose.runtime:runtime-livedata:1.7.5")
 
+    //OkHTTP
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
 
+    //Navigation
     val nav_version = "2.8.9"
-
     implementation("androidx.navigation:navigation-compose:$nav_version")
-
 }

@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.projet_parkour.api.NetworkResponse
 import com.example.projet_parkour.api.RetrofitInstance
 import com.example.projet_parkour.model.CompetitionModel
+import com.example.projet_parkour.model.CompetitionModelItem
 import com.example.projet_parkour.model.CreationCompetitionModelItem
 import kotlinx.coroutines.launch
 
@@ -18,8 +19,8 @@ class CompetitionsViewModel : ViewModel() {
     private val _competitionResult = MutableLiveData<NetworkResponse<CompetitionModel>>()
     val competitionResult : LiveData<NetworkResponse<CompetitionModel>> = _competitionResult
 
-    private val _createCompetitionResult = MutableLiveData<NetworkResponse<CreationCompetitionModelItem>>()
-    val createCompetitionResult : LiveData<NetworkResponse<CreationCompetitionModelItem>> = _createCompetitionResult
+    private val _createCompetitionResult = MutableLiveData<NetworkResponse<CompetitionModelItem>>()
+    val createCompetitionResult : LiveData<NetworkResponse<CompetitionModelItem>> = _createCompetitionResult
 
     val nameCompetition = MutableLiveData("")
     val ageMiniCompet = MutableLiveData("")

@@ -13,3 +13,12 @@ data class CompetitorModelItem(
     val phone: String,
     val updated_at: String
 )
+
+data class CreationCompetitorModelItem(
+    val born_at: String,
+    val email: String,
+    val first_name: String,
+    val gender: String,
+    val last_name: String,
+    val phone: String
+)
