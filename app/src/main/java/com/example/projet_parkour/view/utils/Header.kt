@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Switch
@@ -32,10 +33,13 @@ fun Header(modifier: Modifier, navController: NavController, isEnable: MutableSt
     {
         Button(
             onClick = {
-            navController.navigate("competitions_page")
-        },colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF425776),
-                contentColor = Color.White)) {
+                navController.navigate("competitions_page")
+            },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color(0xFFCCA43B),
+                contentColor = Color.Black),
+            shape = RoundedCornerShape(15)
+        ) {
             Text("Competitions")
         }
 
