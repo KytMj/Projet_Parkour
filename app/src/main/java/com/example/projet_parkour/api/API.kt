@@ -4,11 +4,15 @@ import com.example.projet_parkour.model.CompetitionModel
 import com.example.projet_parkour.model.CompetitionModelItem
 import com.example.projet_parkour.model.CompetitorModel
 import com.example.projet_parkour.model.CompetitorModelItem
+import com.example.projet_parkour.model.CourseObstacleModel
 import com.example.projet_parkour.model.CoursesModel
+import com.example.projet_parkour.model.CoursesModelItem
 import com.example.projet_parkour.model.CreationCompetitionModelItem
 import com.example.projet_parkour.model.CreationCompetitorModelItem
 import com.example.projet_parkour.model.CreationCourseModelItem
+import com.example.projet_parkour.model.CreationObstacleModelItem
 import com.example.projet_parkour.model.ObstacleModel
+import com.example.projet_parkour.model.ObstacleModelItem
 import com.example.projet_parkour.model.PerformanceModel
 import com.example.projet_parkour.model.PerformanceObstacleModel
 import retrofit2.Call
@@ -28,7 +32,7 @@ interface API {
     suspend fun getCompetitionsById(@Path("id") id : Int) : Response<CompetitionModel>
 
     @POST("/api/competitions")
-    suspend fun createCompetitions(@Body competition : CreationCompetitionModelItem) : Response<CreationCompetitionModelItem>
+    suspend fun createCompetitions(@Body competition : CreationCompetitionModelItem) : Response<CompetitionModelItem>
 
     @POST("/api/competitions/{id}/add_competitor")
     suspend fun addCompetitorCompetition(@Path("id") id: Int, @Body competitorId : Int) : Response<CompetitorModelItem>
@@ -45,7 +49,7 @@ interface API {
     suspend fun getCompetitorsById(@Path("id") id : Int) : Response<CompetitorModel>
 
     @POST("/api/competitors")
-    suspend fun createCompetitor(@Body competitor : CreationCompetitorModelItem) : Response<CreationCompetitorModelItem>
+    suspend fun createCompetitor(@Body competitor : CreationCompetitorModelItem) : Response<CompetitorModelItem>
 
 
     //COURSES
@@ -62,18 +66,21 @@ interface API {
     suspend fun getCoursesById(@Path("id") id : Int) : Response<CoursesModel>
 
     @POST("/api/courses")
-    suspend fun createCourse(@Body course : CreationCourseModelItem) : Response<CreationCourseModelItem>
+    suspend fun createCourse(@Body course : CreationCourseModelItem) : Response<CoursesModelItem>
 
 
     //OBSTACLES
     @GET("/api/courses/{id}/obstacles")
-    suspend fun getObstaclesByCourseId(@Path("id") id : Int) : Response<ObstacleModel>
+    suspend fun getObstaclesByCourseId(@Path("id") id : Int) : Response<CourseObstacleModel>
 
     @GET("/api/obstacles")
     suspend fun getObstacles() : Response<ObstacleModel>
 
     @GET("/api/obstacles/{id}")
     suspend fun getObstaclesById(@Path("id") id : Int) : Response<ObstacleModel>
+
+    @POST("/api/obstacles")
+    suspend fun createObstacle(@Body obstacle : CreationObstacleModelItem) : Response<ObstacleModelItem>
 
 
     //PERFORMANCE OBSTACLES

@@ -1,6 +1,7 @@
 package com.example.projet_parkour.view
 
 import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -127,7 +128,7 @@ fun CreateCompetitorPage(
                 born_at = mDate.value
             );
 
-            viewModel.createCompetitor(competitor);
+            val query = viewModel.createCompetitor(competitor);
             //update competition with new competitor
         }) {
             Text(text = "Enregistrer")

@@ -25,8 +25,8 @@ class CompetitorsViewModel : ViewModel() {
     private val _competitorResult = MutableLiveData<NetworkResponse<CompetitorModel>>()
     val competitorResult : LiveData<NetworkResponse<CompetitorModel>> = _competitorResult
 
-    private val _createCompetitorResult = MutableLiveData<NetworkResponse<CreationCompetitorModelItem>>()
-    val createCompetitorResult : LiveData<NetworkResponse<CreationCompetitorModelItem>> = _createCompetitorResult
+    private val _createCompetitorResult = MutableLiveData<NetworkResponse<CompetitorModelItem>>()
+    val createCompetitorResult : LiveData<NetworkResponse<CompetitorModelItem>> = _createCompetitorResult
 
     private val _addCompetitorCompetitionResult = MutableLiveData<NetworkResponse<CompetitorModelItem>>()
     val addCompetitorCompetitionResult : LiveData<NetworkResponse<CompetitorModelItem>> = _addCompetitorCompetitionResult

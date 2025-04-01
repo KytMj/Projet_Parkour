@@ -9,8 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -18,21 +16,21 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.projet_parkour.api.NetworkResponse
 import com.example.projet_parkour.ui.theme.Pink40
+import com.example.projet_parkour.view.utils.FloatingButtonAdd
 import com.example.projet_parkour.viewmodel.CompetitorsViewModel
 import com.example.projet_parkour.viewmodel.CoursesViewModel
 
@@ -42,7 +40,8 @@ fun DisplayCoursesCompetitors(
     coursesViewModel: CoursesViewModel,
     competitorsViewModel: CompetitorsViewModel,
     competitionId: Int,
-    navController: NavController
+    navController: NavController,
+    isEnableConstructMode: MutableState<Boolean>
 ){
     Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         Row(modifier = Modifier.fillMaxSize()) {
@@ -50,7 +49,7 @@ fun DisplayCoursesCompetitors(
             CompetitorsPage(modifier, competitorsViewModel, competitionId)
         }
         FloatingActionButton(
-            modifier = Modifier.padding(bottom = 50.dp).align(Alignment.BottomCenter),
+            modifier = Modifier.padding(start = 10.dp, bottom = 50.dp).align(Alignment.BottomStart),
             onClick = {
                 //TODO chrono
                 //navController.navigate("")
@@ -60,6 +59,13 @@ fun DisplayCoursesCompetitors(
             elevation = FloatingActionButtonDefaults.elevation()
         ) {
             Text(text = "Accéder au chrono", modifier = Modifier.padding(start = 20.dp, end = 20.dp))
+        }
+        if (isEnableConstructMode.value){
+            FloatingButtonAdd(
+                modifier = Modifier.padding(bottom = 50.dp, end = 10.dp).align(Alignment.BottomEnd),
+                route = "create_course_page/${competitionId}",
+                navController = navController,
+            )
         }
     }
 }

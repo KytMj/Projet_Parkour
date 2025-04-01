@@ -31,6 +31,7 @@ import com.example.projet_parkour.view.CompetitionsPage
 import com.example.projet_parkour.view.CreateCompetitionPage
 import com.example.projet_parkour.view.CreateCompetitorPage
 import com.example.projet_parkour.view.CreateCoursePage
+import com.example.projet_parkour.view.CreateObstaclePage
 import com.example.projet_parkour.view.DisplayCoursesCompetitors
 import com.example.projet_parkour.view.utils.FloatingButtonAdd
 import com.example.projet_parkour.view.utils.Header
@@ -54,24 +55,17 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val navController = rememberNavController()
-            val isEnable = remember { mutableStateOf(false) }
+            val isEnableConstructMode = remember { mutableStateOf(false) }
             val backStackEntry by navController.currentBackStackEntryAsState();
             val context = LocalContext.current
 
             Projet_ParkourTheme {
                 Box(modifier = Modifier.padding(top = 40.dp, bottom = 40.dp).fillMaxSize().background(MaterialTheme.colorScheme.background)) {
                     Column{
-                        Header(modifier = Modifier, navController, isEnable)
+                        Header(modifier = Modifier, navController, isEnableConstructMode)
                         NavHost(navController = navController, startDestination = "competitions_page", builder = {
                             composable("competitions_page") {
                                 CompetitionsPage(
-                                    modifier = Modifier.padding(16.dp),
-                                    competitionsViewModel,
-                                    navController
-                                )
-                            }
-                            composable("create_competitions_page") {
-                                CreateCompetitionPage(
                                     modifier = Modifier.padding(16.dp),
                                     competitionsViewModel,
                                     navController
@@ -89,31 +83,8 @@ class MainActivity : ComponentActivity() {
                                         coursesViewModel,
                                         competitorsViewModel,
                                         competitionId,
-                                        navController
-                                    )
-                                }
-                            }
-                            composable("create_competitor_page") {
-                                CreateCompetitorPage(
-                                    modifier = Modifier.padding(16.dp),
-                                    competitorsViewModel,
-                                    navController,
-                                    context
-                                )
-                            }
-                            composable("create_course_page/{competitionId}", arguments = listOf(
-                                navArgument("competitionId"){
-                                    type = NavType.IntType
-                                }
-                            )) { backStackEntry ->
-                                val competitionId = backStackEntry.arguments?.getInt("competitionId")
-                                if (competitionId != null) {
-                                    CreateCoursePage(
-                                        modifier = Modifier.padding(16.dp),
-                                        coursesViewModel,
-                                        competitionId,
                                         navController,
-                                        context
+                                        isEnableConstructMode
                                     )
                                 }
                             }
@@ -129,7 +100,8 @@ class MainActivity : ComponentActivity() {
                                         obstaclesViewModel,
                                         courseId,
                                         navController,
-                                        context = context
+                                        context = context,
+                                        isEnableConstructMode
                                     )
                                 }
                             }
@@ -159,23 +131,60 @@ class MainActivity : ComponentActivity() {
                                     )
                                 }
                             }
+
+
+                            composable("create_competitions_page") {
+                                CreateCompetitionPage(
+                                    modifier = Modifier.padding(16.dp),
+                                    competitionsViewModel,
+                                    navController
+                                )
+                            }
+                            composable("create_competitor_page") {
+                                CreateCompetitorPage(
+                                    modifier = Modifier.padding(16.dp),
+                                    competitorsViewModel,
+                                    navController,
+                                    context
+                                )
+                            }
+                            composable("create_course_page/{competitionId}", arguments = listOf(
+                                navArgument("competitionId"){
+                                    type = NavType.IntType
+                                }
+                            )) { backStackEntry ->
+                                val competitionId = backStackEntry.arguments?.getInt("competitionId")
+                                if (competitionId != null) {
+                                    CreateCoursePage(
+                                        modifier = Modifier.padding(16.dp),
+                                        coursesViewModel,
+                                        competitionId,
+                                        navController,
+                                        context
+                                    )
+                                }
+                            }
+                            composable("create_obstacle_page/{courseId}", arguments = listOf(
+                                navArgument("courseId"){
+                                    type = NavType.IntType
+                                }
+                            )) { backStackEntry ->
+                                val courseId = backStackEntry.arguments?.getInt("courseId")
+                                if (courseId != null) {
+                                    CreateObstaclePage(
+                                        modifier = Modifier.padding(16.dp),
+                                        obstaclesViewModel,
+                                        navController = navController,
+                                        courseId
+                                    )
+                                }
+                            }
                         })
                     }
-                    if(isEnable.value){
+                    if(isEnableConstructMode.value){
                         when(val currentRoute = backStackEntry?.destination?.route){
                             "competitions_page" -> FloatingButtonAdd(modifier = Modifier.padding(bottom = 40.dp, end = 30.dp).align(Alignment.BottomEnd),
                                                     route = "create_competitions_page", navController);
-
-                            //don't work
-                            "inscription_competitors_page" -> {
-                                val competitionId =
-                                    backStackEntry?.arguments?.getInt("competitionId")
-                                FloatingButtonAdd(
-                                    modifier = Modifier.padding(bottom = 40.dp, end = 30.dp)
-                                        .align(Alignment.BottomEnd),
-                                    route = "create_course_page/${competitionId}", navController
-                                );
-                            }
                             null -> {}
                         }
                     }

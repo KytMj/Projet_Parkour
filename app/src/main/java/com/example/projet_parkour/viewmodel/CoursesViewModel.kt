@@ -9,6 +9,7 @@ import com.example.projet_parkour.api.NetworkResponse
 import com.example.projet_parkour.api.RetrofitInstance
 import com.example.projet_parkour.model.CompetitionModel
 import com.example.projet_parkour.model.CoursesModel
+import com.example.projet_parkour.model.CoursesModelItem
 import com.example.projet_parkour.model.CreationCompetitionModelItem
 import com.example.projet_parkour.model.CreationCompetitorModelItem
 import com.example.projet_parkour.model.CreationCourseModelItem
@@ -20,8 +21,8 @@ class CoursesViewModel : ViewModel() {
     private val _coursesResult = MutableLiveData<NetworkResponse<CoursesModel>>()
     val coursesResult : LiveData<NetworkResponse<CoursesModel>> = _coursesResult
 
-    private val _createCourseResult = MutableLiveData<NetworkResponse<CreationCourseModelItem>>()
-    val createCourseResult : LiveData<NetworkResponse<CreationCourseModelItem>> = _createCourseResult
+    private val _createCourseResult = MutableLiveData<NetworkResponse<CoursesModelItem>>()
+    val createCourseResult : LiveData<NetworkResponse<CoursesModelItem>> = _createCourseResult
 
     var nameCourse = MutableLiveData("")
     var maxDurationCourse = MutableLiveData("")

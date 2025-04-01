@@ -11,8 +11,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,13 +22,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.projet_parkour.api.NetworkResponse
-import com.example.projet_parkour.model.ObstacleModel
-import com.example.projet_parkour.ui.theme.Pink40
+import com.example.projet_parkour.model.CourseObstacleModel
 import com.example.projet_parkour.view.utils.DropdownMenuComposable
+import com.example.projet_parkour.view.utils.FloatingButtonAdd
 import com.example.projet_parkour.viewmodel.ObstaclesViewModel
 
 @Composable
@@ -39,19 +36,26 @@ fun ObstaclesPage(
     viewModel: ObstaclesViewModel,
     courseId: Int,
     navController: NavController,
-    context: Context
-) {
+    context: Context,
+    isEnableConstructMode: MutableState<Boolean>,
+    ) {
     val selectedText = remember { mutableStateOf("") }
     var idAddCompetitor = remember { mutableIntStateOf(-1) }
-    val obstaclesList = ObstacleModel()
+    val obstaclesList = CourseObstacleModel()
 
     Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)){
         Column {
-            AvailableObstaclesPage(modifier, viewModel, selectedText, obstaclesList)
-            if (selectedText.value != "") {
-                idAddCompetitor.intValue = selectedText.value.split(".").get(0).substring(3).toInt()
-            }
             ObstaclesInParkourPage(modifier, viewModel, courseId, obstaclesList)
+            if(isEnableConstructMode.value){
+                AvailableObstaclesPage(modifier, viewModel, selectedText, obstaclesList)
+            }
+        }
+        if (isEnableConstructMode.value){
+            FloatingButtonAdd(
+                modifier = Modifier.padding(bottom = 50.dp, end = 10.dp).align(Alignment.BottomEnd),
+                route = "create_obstacle_page/${courseId}",
+                navController = navController,
+            )
         }
     }
 }
@@ -61,7 +65,7 @@ fun AvailableObstaclesPage(
     modifier: Modifier,
     viewModel: ObstaclesViewModel,
     selectedText: MutableState<String>,
-    obstaclesList: ObstacleModel
+    obstaclesList: CourseObstacleModel
 ) {
     val competitorResult = viewModel.obstaclesResult.observeAsState()
 
@@ -84,14 +88,14 @@ fun AvailableObstaclesPage(
 
             is NetworkResponse.Success -> {
                 val data = result.data //TOUS LES OBSTACLES
-                    //TODO enlever ceux déjà enregistrer... pas de vérif non plus
-                val competitors = ArrayList<String>()
+                    //enlever ceux déjà enregistrer... pas de vérif non plus
+                val obstacles = ArrayList<String>()
 
                 data.forEach { element ->
-                    competitors.add(element.name)
+                    obstacles.add(element.name)
                 }
 
-                DropdownMenuComposable(competitors, "Obstacles disponibles", selectedText)
+                DropdownMenuComposable(obstacles, "Obstacles disponibles", selectedText)
             }
             null -> {}
         }
@@ -103,7 +107,7 @@ fun ObstaclesInParkourPage(
     modifier: Modifier,
     viewModel: ObstaclesViewModel,
     courseId: Int,
-    obstaclesList: ObstacleModel
+    obstaclesList: CourseObstacleModel
 ) {
     val obstacleResult = viewModel.obstaclesByCourseResult.observeAsState()
 
@@ -136,7 +140,7 @@ fun ObstaclesInParkourPage(
                             ),
                             modifier = Modifier.fillMaxWidth().padding(start = 10.dp, end = 10.dp, bottom = 5.dp),
                         ) {
-                            Text(modifier = Modifier.padding(10.dp), text = data.name)
+                            Text(modifier = Modifier.padding(10.dp), text = data.obstacle_name)
                         }
                     }
                 }
