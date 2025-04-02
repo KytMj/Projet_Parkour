@@ -37,7 +37,7 @@ class MainActivity : ComponentActivity() {
         val coursesViewModel = ViewModelProvider(this)[CoursesViewModel::class.java]
         val competitorsViewModel = ViewModelProvider(this)[CompetitorsViewModel::class.java]
         val courseObstacleViewModel = ViewModelProvider(this)[CourseObstacleViewModel::class.java]
-        this.deleteDatabase("database");
+//        this.deleteDatabase("database");
         setContent {
             Projet_ParkourTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->

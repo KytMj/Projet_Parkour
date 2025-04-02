@@ -23,6 +23,7 @@ import androidx.compose.ui.text.font.FontFamily
 import com.example.projet_parkour.api.NetworkResponse
 import com.example.projet_parkour.bdd.AppDatabase
 import com.example.projet_parkour.bdd.Perf
+import com.example.projet_parkour.bdd.Remember
 import com.example.projet_parkour.model.CompetitionModelItem
 import com.example.projet_parkour.model.CompetitorModel
 import com.example.projet_parkour.model.CompetitorModelItem
@@ -72,6 +73,11 @@ class CompetitionState(coursesViewModel: CoursesViewModel, competitorsViewModel:
     @Composable
     fun arbitrage(){
         Column {
+            if (courses.value?.isNotEmpty() == true && competitors.value?.isNotEmpty() == true){
+//                val iterator = Iterator(courses.value!!, competitors.value!!, obstacles.value)
+//                iterator.getNext()
+            }
+
             val bdd = AppDatabase.getInstance(LocalContext.current)
 
             var currTime = remember { mutableStateOf(0L) }
@@ -83,9 +89,23 @@ class CompetitionState(coursesViewModel: CoursesViewModel, competitorsViewModel:
             val allCourses = remember { courses.value.orEmpty().filter { it.is_over == 0 } }
             val allObstacles = remember { allCourses.associateWith { course -> obstacles.value[course.id].orEmpty() } }
 
+
             var courseIndex by remember { mutableStateOf(0) }
             var competitorIndex by remember { mutableStateOf(0) }
             var obstacleIndex by remember { mutableStateOf(0) }
+
+            LaunchedEffect(competition.value) {
+                CoroutineScope(Dispatchers.IO).launch {
+                    val res = bdd.rememberDao().getLastRemember(competition.value?.id!!)
+                    if (res != null){
+                        courseIndex = res.courseIndex
+                        competitorIndex = res.competitorIndex
+                        obstacleIndex = res.obstacleIndex
+                    }
+                }
+
+            }
+
 
             val perfs = remember { mutableStateMapOf<Triple<CompetitorModelItem, CoursesModelItem, CourseObstacleModelItem>, Perfs>() }
 
@@ -130,6 +150,12 @@ class CompetitionState(coursesViewModel: CoursesViewModel, competitorsViewModel:
                                     obstacleId = currentObstacle.id,
                                     time = elapsedTime.toInt()
                                 ))
+                                bdd.rememberDao().insertRemember(Remember(
+                                    competitionId =  competition.value?.id!!,
+                                    courseIndex =  courseIndex,
+                                    competitorIndex = competitorIndex,
+                                    obstacleIndex = obstacleIndex
+                                ))
                             }
 
 
@@ -142,6 +168,8 @@ class CompetitionState(coursesViewModel: CoursesViewModel, competitorsViewModel:
                                 obstacleIndex = 0
                                 if (competitorIndex + 1 < allCompetitors.size) {
                                     competitorIndex++
+                                    isRunning = false
+                                    currTime.value = lastObstacleTime
                                 } else {
                                     competitorIndex = 0
                                     if (courseIndex + 1 < allCourses.size) {
@@ -153,7 +181,6 @@ class CompetitionState(coursesViewModel: CoursesViewModel, competitorsViewModel:
                                 }
                             }
                         } else {
-
                             isRunning = true
                             lastObstacleTime = currTime.value
                         }
@@ -167,9 +194,12 @@ class CompetitionState(coursesViewModel: CoursesViewModel, competitorsViewModel:
                                 currTime.value = lastObstacleTime
                             }else{
                                 isRunning = false
-                                if (competitorIndex < allCompetitors.size){
+                                if (competitorIndex + 1 < allCompetitors.size){
                                     competitorIndex++
-                                }
+                                }else
+                                    if (courseIndex + 1 < allCourses.size) {
+                                        courseIndex++
+                                    }
                             }
                         }) { "Chute" }
                     }

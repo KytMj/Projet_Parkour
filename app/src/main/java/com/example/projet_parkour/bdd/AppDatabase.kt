@@ -6,7 +6,7 @@ import androidx.room.*
 @Database(
     entities = [Competition::class, Competitor::class, CompetitionCompetitor::class,
         Course::class, Obstacle::class, CourseObstacle::class, Performance::class,
-        PerformanceObstacle::class, Perf::class],
+        PerformanceObstacle::class, Perf::class, Remember::class],
     version = 1
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -17,6 +17,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun courseObstacleDao(): CourseObstacleDao
     abstract fun obstacleDao(): ObstacleDao
     abstract fun competitorDao(): CompetitorDao
+    abstract fun rememberDao(): RememberDao
 
 
     companion object{
