@@ -156,8 +156,21 @@ class MainActivity : ComponentActivity() {
                                 )
                             }
 
-                            composable("chrono_page"){
-                                ArbitragePage(competitionsViewModel, coursesViewModel, competitorsViewModel, obstaclesViewModel)
+                            composable("chrono_page/{competitionId}", arguments = listOf(
+                                navArgument("competitionId"){
+                                    type = NavType.IntType
+                                }
+                            )) { backStackEntry ->
+                                val competitionId = backStackEntry.arguments?.getInt("competitionId")
+                                if (competitionId != null) {
+                                    ArbitragePage(
+                                        competitionsViewModel,
+                                        coursesViewModel,
+                                        competitorsViewModel,
+                                        obstaclesViewModel,
+                                        competitionId
+                                    )
+                                }
                             }
 
                             composable("create_competitions_page") {

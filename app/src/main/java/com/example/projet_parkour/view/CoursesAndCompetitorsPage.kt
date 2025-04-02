@@ -108,7 +108,7 @@ fun DisplayCoursesCompetitors(
                 .padding(bottom = 10.dp)
                 .align(Alignment.BottomCenter),
             onClick = {
-                navController.navigate("chrono_page")
+                navController.navigate("chrono_page/${competitionId}")
             },
             containerColor = MaterialTheme.colorScheme.secondary,
             contentColor = Color.Black,

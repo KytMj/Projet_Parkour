@@ -25,7 +25,8 @@ import com.example.projet_parkour.viewmodel.ObstaclesViewModel
 
 
 @Composable
-fun ArbitragePage(competitionViewModel: CompetitionsViewModel, coursesViewModel: CoursesViewModel, competitorsViewModel: CompetitorsViewModel, obstaclesViewModel: ObstaclesViewModel, competitionId : Int ) {
+fun ArbitragePage(competitionViewModel: CompetitionsViewModel, coursesViewModel: CoursesViewModel,
+                  competitorsViewModel: CompetitorsViewModel, obstaclesViewModel: ObstaclesViewModel, competitionId : Int ) {
     val selectedCompetition = remember { mutableStateOf<CompetitionModelItem?>(null) }
     selectCompetition(competitionViewModel, selectedCompetition, competitionId)
     val state = remember { CompetitionState(coursesViewModel, competitorsViewModel, obstaclesViewModel) }
