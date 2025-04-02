@@ -99,6 +99,9 @@ interface API {
     @GET("/api/performance_obstacles/{id}")
     suspend fun getPerformanceObstaclesById(@Path("id") id : Int) : Response<PerformanceObstacleModel>
 
+    @GET("/api/performances/{id}/details")
+    suspend fun getPerformanceObstaclesByPerformanceId(@Path("id") id : Int) : Response<PerformanceObstacleModel>
+
 
     //PERFORMANCES
     @GET("/api/competitors/{id}/performances")

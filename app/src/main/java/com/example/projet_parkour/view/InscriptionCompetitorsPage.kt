@@ -42,7 +42,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.projet_parkour.api.NetworkResponse
+import com.example.projet_parkour.model.CompetitorIdModelItem
 import com.example.projet_parkour.model.CompetitorModel
+import com.example.projet_parkour.model.MessageModel
 import com.example.projet_parkour.ui.theme.Pink40
 import com.example.projet_parkour.view.utils.DropdownMenuComposable
 import com.example.projet_parkour.viewmodel.CompetitorsViewModel

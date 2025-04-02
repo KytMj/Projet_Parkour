@@ -36,11 +36,14 @@ import com.example.projet_parkour.view.DisplayCoursesCompetitors
 import com.example.projet_parkour.view.utils.FloatingButtonAdd
 import com.example.projet_parkour.view.utils.Header
 import com.example.projet_parkour.view.InscriptionCompetitorsPage
+import com.example.projet_parkour.view.LeaderboardPage
 import com.example.projet_parkour.view.ObstaclesPage
 import com.example.projet_parkour.viewmodel.CompetitionsViewModel
 import com.example.projet_parkour.viewmodel.CompetitorsViewModel
 import com.example.projet_parkour.viewmodel.CoursesViewModel
 import com.example.projet_parkour.viewmodel.ObstaclesViewModel
+import com.example.projet_parkour.viewmodel.PerformanceObstaclesViewModel
+import com.example.projet_parkour.viewmodel.PerformancesViewModel
 
 class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
@@ -52,6 +55,8 @@ class MainActivity : ComponentActivity() {
         val coursesViewModel = ViewModelProvider(this)[CoursesViewModel::class.java]
         val competitorsViewModel = ViewModelProvider(this)[CompetitorsViewModel::class.java]
         val obstaclesViewModel = ViewModelProvider(this)[ObstaclesViewModel::class.java]
+        val performancesViewModel = ViewModelProvider(this)[PerformancesViewModel::class.java]
+        val performanceObstaclesViewModel = ViewModelProvider(this)[PerformanceObstaclesViewModel::class.java]
 
         setContent {
             val navController = rememberNavController()
@@ -63,7 +68,8 @@ class MainActivity : ComponentActivity() {
                 Box(modifier = Modifier.padding(top = 40.dp, bottom = 40.dp).fillMaxSize().background(MaterialTheme.colorScheme.background)) {
                     Column{
                         Header(modifier = Modifier, navController, isEnableConstructMode)
-                        NavHost(navController = navController, startDestination = "competitions_page", builder = {
+                        NavHost(navController = navController, startDestination = "competitions_page" +
+                                "", builder = {
                             composable("competitions_page") {
                                 CompetitionsPage(
                                     modifier = Modifier.padding(16.dp),
@@ -130,6 +136,15 @@ class MainActivity : ComponentActivity() {
                                         navController, context
                                     )
                                 }
+                            }
+                            //TODO ROUTE POUR LE CLASSEMENT
+                            composable("leaderboard_page") {
+                                LeaderboardPage(
+                                    modifier = Modifier.padding(16.dp),
+                                    performancesViewModel,
+                                    performanceObstaclesViewModel,
+                                    navController
+                                )
                             }
 
 
