@@ -80,7 +80,7 @@ fun DisplayCoursesCompetitors(
                 }
             }
             AnimatedVisibility(visible = currentPage == "Courses") {
-                CoursesPage(modifier, coursesViewModel,navController, competitionId)
+                CoursesPage(modifier, coursesViewModel,navController, competitionId, isCompetitionOver)
             }
 
             Button(modifier = Modifier.padding(5.dp).fillMaxWidth(),
@@ -149,7 +149,8 @@ fun CoursesPage(
     modifier: Modifier,
     viewModel: CoursesViewModel,
     navController: NavController,
-    competitionId: Int
+    competitionId: Int,
+    isCompetitionOver: MutableState<Boolean>
 ){
     val coursesResult = viewModel.coursesResult.observeAsState()
 
@@ -214,17 +215,19 @@ fun CoursesPage(
                                             ) {
                                                 Text("Obstacles")
                                             }
-                                            Button(
-                                                modifier = Modifier.fillMaxWidth(),
-                                                onClick = {
-                                                    navController.navigate("courseleaderboard_page/${data.id}")
-                                                }, colors = ButtonDefaults.buttonColors(
-                                                    containerColor = MaterialTheme.colorScheme.tertiary,
-                                                    contentColor = Color.Black
-                                                ),
-                                                shape = RoundedCornerShape(15)
-                                            ) {
-                                                Text("Classement du parcours")
+                                            if(!isCompetitionOver.value){
+                                                Button(
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                    onClick = {
+                                                        navController.navigate("courseleaderboard_page/${data.id}")
+                                                    }, colors = ButtonDefaults.buttonColors(
+                                                        containerColor = MaterialTheme.colorScheme.tertiary,
+                                                        contentColor = Color.Black
+                                                    ),
+                                                    shape = RoundedCornerShape(15)
+                                                ) {
+                                                    Text("Classement du parcours")
+                                                }
                                             }
                                         }
                                     }
