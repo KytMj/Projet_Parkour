@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    id("kotlin-kapt")
 }
 
 android {
@@ -14,6 +15,8 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
+
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
@@ -39,6 +42,7 @@ android {
 
 dependencies {
 
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
@@ -62,13 +66,21 @@ dependencies {
     implementation("com.squareup.retrofit2:retrofit:$retrofitVersion")
     implementation("com.squareup.retrofit2:converter-gson:$retrofitVersion")
 
+
     //Runtime LiveData
     implementation("androidx.compose.runtime:runtime-livedata:1.7.5")
 
     //OkHTTP
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
 
+
+    val room_version = "2.6.1"
+    implementation("androidx.room:room-runtime:$room_version")
+    kapt("androidx.room:room-compiler:2.6.1") // Annotation processor (important!)
+    implementation("androidx.room:room-ktx:2.6.1")
+
     //Navigation
     val nav_version = "2.8.9"
     implementation("androidx.navigation:navigation-compose:$nav_version")
+
 }

@@ -1,5 +1,8 @@
 package com.example.projet_parkour.model
 
+import androidx.recyclerview.widget.SortedList
+import java.util.SortedSet
+
 class ObstacleModel : ArrayList<ObstacleModelItem>()
 class CourseObstacleModel : ArrayList<CourseObstacleModelItem>()
 

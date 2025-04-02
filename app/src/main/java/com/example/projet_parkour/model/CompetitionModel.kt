@@ -1,5 +1,8 @@
 package com.example.projet_parkour.model
 
+import com.example.projet_parkour.bdd.Competition
+import com.example.projet_parkour.bdd.CompetitionStatus
+
 class CompetitionModel : ArrayList<CompetitionModelItem>()
 
 data class CompetitionModelItem(
@@ -13,6 +16,7 @@ data class CompetitionModelItem(
     val status: String,
     val updated_at: String
 )
+
 
 data class CreationCompetitionModelItem(
     val name: String,

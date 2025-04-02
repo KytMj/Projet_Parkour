@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Projet_Parkour</string>
     <string name="title_activity_main">MainActivity</string>
+    <string name="title_activity_arbitrage_view">ArbitrageView</string>
 </resources>
