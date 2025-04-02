@@ -59,7 +59,7 @@ fun ObstaclesPage(
     Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)){
         Column {
             viewModel.AddToListRegisteredObstacles(obstaclesList)
-            ObstaclesInParkourPage(modifier, viewModel, courseId, obstaclesList)
+            ObstaclesInParkourPage(modifier, viewModel, courseId, obstaclesList, navController)
             if (selectedText.value != "") {
                 idAddObstacle.intValue =
                     selectedText.value.split(".")[0].substring(2).toInt()
@@ -142,7 +142,8 @@ fun ObstaclesInParkourPage(
     modifier: Modifier,
     viewModel: ObstaclesViewModel,
     courseId: Int,
-    obstaclesList: CourseObstacleModel
+    obstaclesList: CourseObstacleModel,
+    navController: NavController
 ) {
     val obstacleResult = viewModel.obstaclesByCourseResult.observeAsState()
 
@@ -182,7 +183,9 @@ fun ObstaclesInParkourPage(
                                 modifier = Modifier.fillMaxWidth()
                                     .padding(start = 10.dp, end = 10.dp, bottom = 5.dp),
                             ) {
-                                Text(modifier = Modifier.padding(10.dp), text = ""+data.id+" "+data.obstacle_name)
+                                Button(onClick = { navController.navigate("obstacleleaderboard_page/${data.id}")}){
+                                    Text(modifier = Modifier.padding(10.dp), text = ""+data.id+" "+data.obstacle_name)
+                                }
                             }
                         }
                     }

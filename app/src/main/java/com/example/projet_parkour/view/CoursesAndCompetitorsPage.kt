@@ -197,7 +197,7 @@ fun CoursesPage(
                                             "Nom de la course : " + data.name,
                                             fontWeight = FontWeight.Bold
                                         )
-                                        Text("Durée maximum : " + data.max_duration)
+                                        Text("Durée maximum : ${data.max_duration}")
                                         Text(
                                             text = if (data.is_over == 1) "Course terminée" else "Course pas terminée",
                                             color = if (data.is_over == 1) Color(0xFF8ac926) else Color(0xFFff595e)
