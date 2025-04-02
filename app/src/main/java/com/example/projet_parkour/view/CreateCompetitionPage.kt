@@ -38,8 +38,6 @@ fun CreateCompetitionPage(
     navController: NavController,
     context: Context
 ){
-    val createCompetitionResult = viewModel.createCompetitionResult.observeAsState()
-
     val nameState by viewModel.nameCompetition.observeAsState() ;
     val ageMiniState by viewModel.ageMiniCompet.observeAsState() ;
     val ageMaxiState by viewModel.ageMaxiCompet.observeAsState() ;
@@ -145,7 +143,12 @@ fun CreateCompetitionPage(
         Button(onClick = {
             if(isValidName && isValidMiniAge && isValidMaxAge){
                 val response = viewModel.checkAndAddCompetition(selectedOptionGender, checkedHasRetry, context)
-                if(response) navController.navigate("competitions_page")
+                if(response) {
+                    viewModel.nameCompetition.postValue("")
+                    viewModel.ageMiniCompet.postValue("")
+                    viewModel.ageMaxiCompet.postValue("")
+                    navController.navigate("competitions_page")
+                }
             }
             else{
                 Toast.makeText(context, "Des champs ne sont pas valides", Toast.LENGTH_LONG).show()

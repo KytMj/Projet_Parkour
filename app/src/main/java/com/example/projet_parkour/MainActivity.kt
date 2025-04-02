@@ -63,6 +63,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             val navController = rememberNavController()
             val isEnableConstructMode = remember { mutableStateOf(false) }
+            val isCompetitionOver = remember { mutableStateOf(false) }
             val backStackEntry by navController.currentBackStackEntryAsState();
             val context = LocalContext.current
 
@@ -70,13 +71,14 @@ class MainActivity : ComponentActivity() {
                 Box(modifier = Modifier.padding(top = 40.dp, bottom = 40.dp).fillMaxSize().background(MaterialTheme.colorScheme.background)) {
                     Column{
                         Header(modifier = Modifier, navController, isEnableConstructMode)
-                        NavHost(navController = navController, startDestination = /*"competitions_page"*//*"leaderboard_page"*/ /*"courseleaderboard_page/2571"*/"obstacleleaderboard_page/4298"+
-                                "", builder = {
+                        NavHost(navController = navController, startDestination = "competitions_page", builder = {
+
                             composable("competitions_page") {
                                 CompetitionsPage(
                                     modifier = Modifier.padding(16.dp),
                                     competitionsViewModel,
-                                    navController
+                                    navController,
+                                    isCompetitionOver
                                 )
                             }
                             composable("courses_competitors_page/{competitionId}", arguments = listOf(
@@ -92,7 +94,8 @@ class MainActivity : ComponentActivity() {
                                         competitorsViewModel,
                                         competitionId,
                                         navController,
-                                        isEnableConstructMode
+                                        isEnableConstructMode,
+                                        isCompetitionOver
                                     )
                                 }
                             }
@@ -109,7 +112,8 @@ class MainActivity : ComponentActivity() {
                                         courseId,
                                         navController,
                                         context = context,
-                                        isEnableConstructMode
+                                        isEnableConstructMode,
+                                        isCompetitionOver
                                     )
                                 }
                             }
@@ -135,11 +139,11 @@ class MainActivity : ComponentActivity() {
                                     InscriptionCompetitorsPage(
                                         modifier = Modifier.padding(16.dp),
                                         competitorsViewModel, competitionId, ageMin, ageMax, gender,
-                                        navController, context
+                                        navController, context, isCompetitionOver
                                     )
                                 }
                             }
-                            //TODO ROUTE POUR LE CLASSEMENT
+
                             composable("leaderboard_page") {
                                 LeaderboardPage(
                                     modifier = Modifier.padding(16.dp),

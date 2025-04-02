@@ -1,6 +1,11 @@
 package com.example.projet_parkour.viewmodel
 
+import android.content.Context
 import android.util.Log
+import android.widget.Toast
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Text
+import androidx.compose.runtime.MutableState
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -66,4 +71,44 @@ class CoursesViewModel : ViewModel() {
         }
     }
 
+    fun checkAndAddCourse(
+        context: Context,
+        competitionId: Int
+    ): Boolean {
+        if (nameCourse.value == ""){
+            Toast.makeText(context, "Le champ Nom Course ne contient rien", Toast.LENGTH_LONG).show()
+            return false;
+        }
+
+        if (maxDurationCourse.value == ""){
+            Toast.makeText(context, "Le champ Durée Max ne contient rien", Toast.LENGTH_LONG).show()
+            return false;
+        }
+
+        val course = CreationCourseModelItem(
+            name = nameCourse.value.toString(),
+            max_duration = maxDurationCourse.value?.toInt() ?: 0,
+            competition_id = competitionId
+        );
+
+        createCourse(course);
+
+        when (val result = createCourseResult.value) {
+            is NetworkResponse.Error -> Toast.makeText(context, "error: "+ result.message, Toast.LENGTH_LONG).show()
+            is NetworkResponse.Loading -> {}
+            is NetworkResponse.Success -> {
+                Toast.makeText(context, "Course bien ajoutée !", Toast.LENGTH_LONG).show()
+            }
+            null -> {}
+        }
+        return true;
+    }
+
+    fun isValidName(text: String): Boolean {
+        return text.matches(Regex("^[A-Za-zéèëêàç\\s'-]{1,50}\$"))
+    }
+
+    fun isValidDuration(text: String): Boolean {
+        return text.matches(Regex("^\\d+\$"))
+    }
 }

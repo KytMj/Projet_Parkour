@@ -122,6 +122,6 @@ class CompetitionsViewModel : ViewModel() {
     }
 
     fun isValidName(text: String): Boolean {
-        return text.matches(Regex("^[A-Za-z]{1,50}\$"))
+        return text.matches(Regex("^[A-Za-zéèëêàç\\s'-]{1,50}\$"))
     }
 }
