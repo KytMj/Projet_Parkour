@@ -2,6 +2,7 @@ package com.example.projet_parkour.view
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -51,7 +52,8 @@ fun DisplayCoursesCompetitors(
     competitorsViewModel: CompetitorsViewModel,
     competitionId: Int,
     navController: NavController,
-    isEnableConstructMode: MutableState<Boolean>
+    isEnableConstructMode: MutableState<Boolean>,
+    isCompetitionOver: MutableState<Boolean>
 ){
     var currentPage by remember { mutableStateOf<String?>(null) }
     Box(modifier = Modifier
@@ -78,7 +80,7 @@ fun DisplayCoursesCompetitors(
                 }
             }
             AnimatedVisibility(visible = currentPage == "Courses") {
-                CoursesPage(modifier, coursesViewModel,navController, competitionId)
+                CoursesPage(modifier, coursesViewModel,navController, competitionId, isCompetitionOver)
             }
 
             Button(modifier = Modifier.padding(5.dp).fillMaxWidth(),
@@ -103,20 +105,37 @@ fun DisplayCoursesCompetitors(
                 CompetitorsPage(modifier, competitorsViewModel, competitionId)
             }
         }
-        FloatingActionButton(
-            modifier = Modifier
-                .padding(bottom = 10.dp)
-                .align(Alignment.BottomCenter),
-            onClick = {
-                navController.navigate("chrono_page/${competitionId}")
-            },
-            containerColor = MaterialTheme.colorScheme.secondary,
-            contentColor = Color.Black,
-            elevation = FloatingActionButtonDefaults.elevation()
-        ) {
-            Text(text = "Accéder au chrono", modifier = Modifier.padding(start = 10.dp, end = 10.dp))
+        if(!isCompetitionOver.value){
+            FloatingActionButton(
+                modifier = Modifier
+                    .padding(bottom = 10.dp)
+                    .align(Alignment.BottomCenter),
+                onClick = {
+                    navController.navigate("chrono_page/${competitionId}")
+                },
+                containerColor = MaterialTheme.colorScheme.secondary,
+                contentColor = Color.Black,
+                elevation = FloatingActionButtonDefaults.elevation()
+            ) {
+                Text(text = "Accéder au chrono", modifier = Modifier.padding(start = 10.dp, end = 10.dp))
+            }
         }
-        if (isEnableConstructMode.value){
+        else{
+            FloatingActionButton(
+                modifier = Modifier
+                    .padding(bottom = 10.dp)
+                    .align(Alignment.BottomStart),
+                onClick = {
+                    navController.navigate("leaderboard_page")
+                },
+                containerColor = MaterialTheme.colorScheme.secondary,
+                contentColor = Color.Black,
+                elevation = FloatingActionButtonDefaults.elevation()
+            ) {
+                Text(text = "Accéder au classement total", modifier = Modifier.padding(start = 10.dp, end = 10.dp))
+            }
+        }
+        if (isEnableConstructMode.value && !isCompetitionOver.value){
             FloatingButtonAdd(
                 modifier = Modifier.padding(bottom = 50.dp, end = 10.dp).align(Alignment.BottomEnd),
                 route = "create_course_page/${competitionId}",
@@ -131,7 +150,8 @@ fun CoursesPage(
     modifier: Modifier,
     viewModel: CoursesViewModel,
     navController: NavController,
-    competitionId: Int
+    competitionId: Int,
+    isCompetitionOver: MutableState<Boolean>
 ){
     val coursesResult = viewModel.coursesResult.observeAsState()
 
@@ -178,22 +198,38 @@ fun CoursesPage(
                                             "Nom de la course : " + data.name,
                                             fontWeight = FontWeight.Bold
                                         )
-                                        Text("Durée maximum : " + data.max_duration)
+                                        Text("Durée maximum : ${data.max_duration}")
                                         Text(
                                             text = if (data.is_over == 1) "Course terminée" else "Course pas terminée",
                                             color = if (data.is_over == 1) Color(0xFF8ac926) else Color(0xFFff595e)
                                         )
-                                        Button(
-                                            modifier = Modifier.fillMaxWidth(),
-                                            onClick = {
-                                                navController.navigate("obstacles_page/${data.id}")
-                                            }, colors = ButtonDefaults.buttonColors(
-                                                containerColor = MaterialTheme.colorScheme.tertiary,
-                                                contentColor = Color.Black
-                                            ),
-                                            shape = RoundedCornerShape(15)
-                                        ) {
-                                            Text("Obstacles")
+                                        Column(modifier = Modifier.padding(6.dp).fillMaxHeight(), verticalArrangement = Arrangement.Center) {
+                                            Button(
+                                                modifier = Modifier.fillMaxWidth(),
+                                                onClick = {
+                                                    navController.navigate("obstacles_page/${data.id}")
+                                                }, colors = ButtonDefaults.buttonColors(
+                                                    containerColor = MaterialTheme.colorScheme.tertiary,
+                                                    contentColor = Color.Black
+                                                ),
+                                                shape = RoundedCornerShape(15)
+                                            ) {
+                                                Text("Obstacles")
+                                            }
+                                            if(!isCompetitionOver.value){
+                                                Button(
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                    onClick = {
+                                                        navController.navigate("courseleaderboard_page/${data.id}")
+                                                    }, colors = ButtonDefaults.buttonColors(
+                                                        containerColor = MaterialTheme.colorScheme.tertiary,
+                                                        contentColor = Color.Black
+                                                    ),
+                                                    shape = RoundedCornerShape(15)
+                                                ) {
+                                                    Text("Classement du parcours")
+                                                }
+                                            }
                                         }
                                     }
                                 }

@@ -6,6 +6,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -26,8 +27,12 @@ class CompetitorsViewModel : ViewModel() {
     private val _competitorResult = MutableLiveData<NetworkResponse<CompetitorModel>>()
     val competitorResult : LiveData<NetworkResponse<CompetitorModel>> = _competitorResult
 
-    private val _competitorByCompetitionResult = MutableLiveData<NetworkResponse<CompetitorModel>>()
-    val competitorByCompetitionResult : LiveData<NetworkResponse<CompetitorModel>> = _competitorByCompetitionResult
+    private val _competitorByCompetitionResult = MutableLiveData<NetworkResponse<List<CompetitorModelItem>>>()
+    val competitorByCompetitionResult : LiveData<NetworkResponse<List<CompetitorModelItem>>> = _competitorByCompetitionResult
+
+    private val _competitorByIdResult = MutableLiveData<NetworkResponse<CompetitorModelItem>>()
+    val competitorByIdResult : LiveData<NetworkResponse<CompetitorModelItem>> = _competitorByIdResult
+
 
     private val _createCompetitorResult = MutableLiveData<NetworkResponse<CompetitorModelItem>>()
     val createCompetitorResult : LiveData<NetworkResponse<CompetitorModelItem>> = _createCompetitorResult
@@ -59,6 +64,27 @@ class CompetitorsViewModel : ViewModel() {
             }
             catch (ex : Exception){
                 _competitorByCompetitionResult.value = NetworkResponse.Error("Les données n'ont pas réussi à être chargées. \n"+ ex.toString() + "\nmessage :" + ex.message)
+            }
+        }
+    }
+
+    fun getCompetitorsById(competitorId: Int){
+        _competitorByIdResult.value = NetworkResponse.Loading
+        viewModelScope.launch {
+            try {
+                val response = api.getCompetitorsById(competitorId)
+                if (response.isSuccessful) {
+                    response.body()?.let { body ->
+                        _competitorByIdResult.value = NetworkResponse.Success(body) // Directly assign the list
+                    } ?: run {
+                        _competitorByIdResult.value = NetworkResponse.Error("Réponse API vide.")
+                    }
+                } else {
+                    _competitorByIdResult.value = NetworkResponse.Error("Les données n'ont pas réussi à être chargées. (error "+response.code().toString() + ")");
+                }
+            }
+            catch (ex : Exception){
+                _competitorByIdResult.value = NetworkResponse.Error("Les données n'ont pas réussi à être chargées. \n"+ ex.toString() + "\nmessage :" + ex.message)
             }
         }
     }
@@ -188,86 +214,6 @@ class CompetitorsViewModel : ViewModel() {
         return true
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    fun checkAndAddCompetitorToCompetition(
-        selectedOptionGender: MutableState<String>,
-        context: Context,
-        mDate: MutableState<String>,
-        competitionId: Int,
-        ageMin: Int,
-        ageMax: Int,
-        genderCompet: String
-    ): Boolean{
-        val gender = when (selectedOptionGender.value) {
-            "Homme" -> "H"; "Femme" -> "F"
-            else -> {
-                ""
-            }
-        }
-
-        if (firstName.value == "" || lastName.value == "" || email.value == "" || phone.value == "") {
-            Toast.makeText(context, "Champ(s) vide(s)", Toast.LENGTH_LONG).show()
-            return false;
-        }
-
-        val competitor = CreationCompetitorModelItem(
-            first_name = firstName.value.toString(),
-            last_name = lastName.value.toString(),
-            gender = gender,
-            email = email.value.toString(),
-            phone = phone.value.toString(),
-            born_at = mDate.value
-        );
-
-        createCompetitor(competitor);
-        val resultData : MutableLiveData<CompetitorModelItem> = MutableLiveData()
-
-        when (val result = createCompetitorResult.value) {
-            is NetworkResponse.Error -> {
-                Toast.makeText(context, "error: " + result.message, Toast.LENGTH_LONG).show()
-                return false
-            }
-            is NetworkResponse.Loading -> {}
-            is NetworkResponse.Success -> {
-                resultData.value = result.data
-                Toast.makeText(context, "Participant ajouté à la base", Toast.LENGTH_LONG).show()
-            }
-            null -> {}
-        }
-
-        if (resultData.value != null){
-            val age = ChronoUnit.YEARS.between(LocalDate.parse(resultData.value?.born_at), LocalDate.now())
-            if((age < ageMin || age > ageMax) || resultData.value?.gender != genderCompet){
-                var error = ""
-                if (resultData.value?.gender != genderCompet) error += "Ce participant n'est pas du genre de la compétition\n"
-                if (age < ageMin || age > ageMax) error += "Ce participant n'a pas le bon âge pour cette compétition\n"
-
-                Toast.makeText(context, error, Toast.LENGTH_LONG).show()
-                resultData.value?.id?.let { CompetitorIdModelItem(it) }
-                    ?.let { deleteCompetitor(it) }
-                return false
-            }
-
-            resultData.value?.id?.let { CompetitorIdModelItem(it) }
-                ?.let { addCompetitorCompetition(it, competitionId) }
-        }
-
-
-        when (val result = addCompetitorCompetitionResult.value) {
-            is NetworkResponse.Error -> {
-                Toast.makeText(context, "error: "+ result.message, Toast.LENGTH_LONG).show()
-                return false
-            }
-            is NetworkResponse.Loading -> {}
-            is NetworkResponse.Success -> {
-                Toast.makeText(context, "Participant ajouté à la compétition", Toast.LENGTH_LONG).show()
-            }
-            null -> {}
-        }
-
-        return true
-    }
-
     fun isValidName(text: String): Boolean {
         return text.matches(Regex("^[a-zA-Zéèëêàç]{1,50}\$"))
     }
@@ -282,5 +228,37 @@ class CompetitorsViewModel : ViewModel() {
 
     fun isValidDate(text: String): Boolean {
         return text.matches(Regex("^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])\$"))
+    }
+
+    fun RegisterCompetitorOnClick (
+        idAddCompetitor: Int,
+        competitionId: Int,
+        context: Context,
+        addCompetitorResult: State<NetworkResponse<MessageModel>?>
+    ): Boolean {
+        if(idAddCompetitor != -1) {
+            addCompetitorCompetition(CompetitorIdModelItem(idAddCompetitor), competitionId)
+            if (addCompetitorResult.value is NetworkResponse.Error) {
+                val result = (addCompetitorResult.value as NetworkResponse.Error)
+                Toast.makeText(context, result.message, Toast.LENGTH_LONG).show()
+                return false
+            }
+            return true
+        }
+        else{
+            Toast.makeText(context, "Vous n'avez pas sélectionné de participants à inscrire", Toast.LENGTH_LONG).show()
+            return false
+        }
+    }
+
+    fun AddToListRegisteredCompetitors(registeredCompetitorsList: CompetitorModel){
+        when(val result = competitorByCompetitionResult.value){
+            is NetworkResponse.Success -> {
+                registeredCompetitorsList.addAll(result.data)
+            }
+            null -> {}
+            is NetworkResponse.Error -> {}
+            is NetworkResponse.Loading -> {}
+        }
     }
 }

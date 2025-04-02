@@ -36,6 +36,7 @@ import androidx.navigation.navArgument
 import com.example.projet_parkour.ui.theme.Projet_ParkourTheme
 import com.example.projet_parkour.view.ArbitragePage
 import com.example.projet_parkour.view.CompetitionsPage
+import com.example.projet_parkour.view.CourseLeaderboardPage
 import com.example.projet_parkour.view.CreateCompetitionPage
 import com.example.projet_parkour.view.CreateCompetitorPage
 import com.example.projet_parkour.view.CreateCoursePage
@@ -45,6 +46,7 @@ import com.example.projet_parkour.view.utils.FloatingButtonAdd
 import com.example.projet_parkour.view.utils.Header
 import com.example.projet_parkour.view.InscriptionCompetitorsPage
 import com.example.projet_parkour.view.LeaderboardPage
+import com.example.projet_parkour.view.ObstacleLeaderboardPage
 import com.example.projet_parkour.view.ObstaclesPage
 import com.example.projet_parkour.viewmodel.CompetitionsViewModel
 import com.example.projet_parkour.viewmodel.CompetitorsViewModel
@@ -69,6 +71,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             val navController = rememberNavController()
             val isEnableConstructMode = remember { mutableStateOf(false) }
+            val isCompetitionOver = remember { mutableStateOf(false) }
             val backStackEntry by navController.currentBackStackEntryAsState();
             val context = LocalContext.current
 
@@ -76,13 +79,14 @@ class MainActivity : ComponentActivity() {
                 Box(modifier = Modifier.padding(top = 40.dp, bottom = 40.dp).fillMaxSize().background(MaterialTheme.colorScheme.background)) {
                     Column{
                         Header(modifier = Modifier, navController, isEnableConstructMode)
-                        NavHost(navController = navController, startDestination = "competitions_page" +
-                                "", builder = {
+                        NavHost(navController = navController, startDestination = "competitions_page", builder = {
+
                             composable("competitions_page") {
                                 CompetitionsPage(
                                     modifier = Modifier.padding(16.dp),
                                     competitionsViewModel,
-                                    navController
+                                    navController,
+                                    isCompetitionOver
                                 )
                             }
                             composable("courses_competitors_page/{competitionId}", arguments = listOf(
@@ -98,7 +102,8 @@ class MainActivity : ComponentActivity() {
                                         competitorsViewModel,
                                         competitionId,
                                         navController,
-                                        isEnableConstructMode
+                                        isEnableConstructMode,
+                                        isCompetitionOver
                                     )
                                 }
                             }
@@ -115,7 +120,8 @@ class MainActivity : ComponentActivity() {
                                         courseId,
                                         navController,
                                         context = context,
-                                        isEnableConstructMode
+                                        isEnableConstructMode,
+                                        isCompetitionOver
                                     )
                                 }
                             }
@@ -141,17 +147,17 @@ class MainActivity : ComponentActivity() {
                                     InscriptionCompetitorsPage(
                                         modifier = Modifier.padding(16.dp),
                                         competitorsViewModel, competitionId, ageMin, ageMax, gender,
-                                        navController, context
+                                        navController, context, isCompetitionOver
                                     )
                                 }
                             }
 
-                            //TODO ROUTE POUR LE CLASSEMENT
                             composable("leaderboard_page") {
                                 LeaderboardPage(
                                     modifier = Modifier.padding(16.dp),
                                     performancesViewModel,
                                     performanceObstaclesViewModel,
+                                    competitorsViewModel,
                                     navController
                                 )
                             }
@@ -161,7 +167,8 @@ class MainActivity : ComponentActivity() {
                                     type = NavType.IntType
                                 }
                             )) { backStackEntry ->
-                                val competitionId = backStackEntry.arguments?.getInt("competitionId")
+                                val competitionId =
+                                    backStackEntry.arguments?.getInt("competitionId")
                                 if (competitionId != null) {
                                     ArbitragePage(
                                         competitionsViewModel,
@@ -170,6 +177,42 @@ class MainActivity : ComponentActivity() {
                                         obstaclesViewModel,
                                         competitionId,
                                         performancesViewModel, performanceObstaclesViewModel
+                                    )
+                                }
+                            }
+
+                            composable("courseleaderboard_page/{courseId}", arguments = listOf(
+                                navArgument("courseId"){
+                                    type = NavType.IntType
+                                }
+                            )) { backStackEntry ->
+                                val courseId = backStackEntry.arguments?.getInt("courseId")
+                                if (courseId != null) {
+                                    CourseLeaderboardPage(
+                                        modifier = Modifier.padding(16.dp),
+                                        performancesViewModel,
+                                        performanceObstaclesViewModel,
+                                        competitorsViewModel,
+                                        navController,
+                                        courseId
+                                    )
+                                }
+                            }
+
+                            composable("obstacleleaderboard_page/{obstacleId}", arguments = listOf(
+                                navArgument("obstacleId"){
+                                    type = NavType.IntType
+                                }
+                            )) { backStackEntry ->
+                                val obstacleId = backStackEntry.arguments?.getInt("obstacleId")
+                                if (obstacleId != null) {
+                                    ObstacleLeaderboardPage(
+                                        modifier = Modifier.padding(16.dp),
+                                        performancesViewModel,
+                                        performanceObstaclesViewModel,
+                                        competitorsViewModel,
+                                        navController,
+                                        obstacleId
                                     )
                                 }
                             }

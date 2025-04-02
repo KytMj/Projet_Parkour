@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -36,12 +37,13 @@ import com.example.projet_parkour.viewmodel.PerformanceObstaclesViewModel
 import com.example.projet_parkour.viewmodel.PerformancesViewModel
 
 @Composable
-fun LeaderboardPage(
+fun CourseLeaderboardPage(
     modifier: Modifier,
     viewModelPerformances: PerformancesViewModel,
     viewModelPerformanceObstacles: PerformanceObstaclesViewModel,
     competitorsViewModel: CompetitorsViewModel,
-    navController: NavController
+    navController: NavController,
+    courseId: Int
 ) {
     val competitionResult = viewModelPerformances.performancesResult.observeAsState()
     val competitorsResult = competitorsViewModel.competitorResult.observeAsState()
@@ -55,14 +57,14 @@ fun LeaderboardPage(
         modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = "Classement",
+        Text(text = "Classement Course n°${courseId}",
             fontSize = 20.sp,
             modifier = Modifier.padding(top = 5.dp, bottom = 15.dp),
             fontWeight = FontWeight.Bold)
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
-                .fillMaxHeight()
+                .fillMaxHeight(0.9f)
                 .padding(10.dp)
                 .fillMaxWidth()
                 .clip(shape = RoundedCornerShape(20.dp))
@@ -79,12 +81,13 @@ fun LeaderboardPage(
                 }
 
                 is NetworkResponse.Success -> {
-                    var tab: Array<PerformanceModel> = arrayOf(result.data);
-                    var sortedTab = tab[0].sortedWith (compareBy (
+                    val filteredPerformances = result.data.filter { it.course_id == courseId }
+                    var sortedTab = filteredPerformances.sortedWith (compareBy (
                         {it.status =="defection"},// Trie selon l'abandon (faux => début, vrai => fin)
                         {it.total_time} // Sinon selon le temps
                     ));
-                    LazyColumn {
+
+                        LazyColumn {
                         items(sortedTab.size) { index ->
                             val data = sortedTab[index]
                             Card(
@@ -111,9 +114,11 @@ fun LeaderboardPage(
                                         is NetworkResponse.Error -> {
                                             Text(text = competitorResult.message)
                                         }
+
                                         is NetworkResponse.Loading -> {
                                             CircularProgressIndicator()
                                         }
+
                                         is NetworkResponse.Success -> {
                                             val competitor = competitorResult.data.find { it.id == data.competitor_id }
                                             Text(modifier = Modifier.padding(10.dp),text = ""+ competitor?.first_name+" "+competitor?.last_name)
@@ -127,14 +132,20 @@ fun LeaderboardPage(
                                     .padding(10.dp),
                                     horizontalArrangement = Arrangement.SpaceBetween){
                                     Text(modifier = Modifier.padding(10.dp),text = data.status)
-                                    Text(modifier = Modifier.padding(10.dp),text = "Cours ID :"+data.course_id)
+                                    Text(modifier = Modifier.padding(10.dp),text = ""+data.course_id)
                                 }
                             }
                         }
+
+
                     }
                 }
+
                 null -> {}
             }
+        }
+        Button(onClick = {navController.navigate("leaderboard_page")}) {
+            Text("Classement général")
         }
     }
 }

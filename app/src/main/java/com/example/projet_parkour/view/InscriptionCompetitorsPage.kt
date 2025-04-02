@@ -3,7 +3,6 @@ package com.example.projet_parkour.view
 import android.content.Context
 import android.os.Build
 import android.util.Log
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -28,7 +27,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.State
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -42,9 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.projet_parkour.api.NetworkResponse
-import com.example.projet_parkour.model.CompetitorIdModelItem
 import com.example.projet_parkour.model.CompetitorModel
-import com.example.projet_parkour.model.MessageModel
 import com.example.projet_parkour.ui.theme.Pink40
 import com.example.projet_parkour.view.utils.DropdownMenuComposable
 import com.example.projet_parkour.viewmodel.CompetitorsViewModel
@@ -61,7 +57,8 @@ fun InscriptionCompetitorsPage(
     ageMax: Int,
     gender: String,
     navController: NavController,
-    context: Context
+    context: Context,
+    isCompetitionOver: MutableState<Boolean>
 ) {
     val selectedText = remember { mutableStateOf("") }
     var idAddCompetitor = remember { mutableIntStateOf(-1) }
@@ -87,31 +84,32 @@ fun InscriptionCompetitorsPage(
                         shape = RoundedCornerShape(10.dp)
                     ).padding(10.dp)
             ) {
-                AddToListRegisteredCompetitors(viewModel, registeredCompetitorsList)
-                PotentialsCompetitorsPage(
-                    modifier,
-                    viewModel,
-                    ageMin,
-                    ageMax,
-                    gender,
-                    selectedText,
-                    registeredCompetitorsList
-                )
-                if (selectedText.value != "") {
-                    idAddCompetitor.value =
-                        selectedText.value.split(".").get(0).substring(3).toInt()
-                }
-                Button(onClick = {
-                    val result = RegisterCompetitorOnClick(
-                        idAddCompetitor.intValue,
-                        competitionId,
-                        context,
+                viewModel.AddToListRegisteredCompetitors(registeredCompetitorsList)
+                if (!isCompetitionOver.value){
+                    PotentialsCompetitorsPage(
+                        modifier,
                         viewModel,
-                        addCompetitorResult
+                        ageMin,
+                        ageMax,
+                        gender,
+                        selectedText,
+                        registeredCompetitorsList
                     )
-                    if (result) navController.navigate("inscription_competitors_page/${competitionId}:${ageMin},${ageMax},${gender}")
-                }) {
-                    Text("Inscrire un participant")
+                    if (selectedText.value != "") {
+                        idAddCompetitor.intValue =
+                            selectedText.value.split(".")[0].substring(3).toInt()
+                    }
+                    Button(onClick = {
+                        val result = viewModel.RegisterCompetitorOnClick(
+                            idAddCompetitor.intValue,
+                            competitionId,
+                            context,
+                            addCompetitorResult
+                        )
+                        if (result) navController.navigate("inscription_competitors_page/${competitionId}:${ageMin},${ageMax},${gender}")
+                    }) {
+                        Text("Inscrire un participant")
+                    }
                 }
             }
             RegisteredCompetitorsPage(modifier, viewModel, competitionId)
@@ -242,40 +240,5 @@ fun RegisteredCompetitorsPage(
                 null -> {}
             }
         }
-    }
-}
-
-private fun RegisterCompetitorOnClick (
-    idAddCompetitor: Int,
-    competitionId: Int,
-    context: Context,
-    viewModel: CompetitorsViewModel,
-    addCompetitorResult: State<NetworkResponse<MessageModel>?>
-): Boolean {
-    if(idAddCompetitor != -1) {
-        viewModel.addCompetitorCompetition(CompetitorIdModelItem(idAddCompetitor), competitionId)
-        if (addCompetitorResult.value is NetworkResponse.Error) {
-            val result = (addCompetitorResult.value as NetworkResponse.Error)
-            Toast.makeText(context, result.message, Toast.LENGTH_LONG).show()
-            return false
-        }
-        return true
-    }
-    else{
-        Toast.makeText(context, "Vous n'avez pas sélectionné de participants à inscrire", Toast.LENGTH_LONG).show()
-        return false
-    }
-}
-
-private fun AddToListRegisteredCompetitors(viewModel: CompetitorsViewModel, registeredCompetitorsList: CompetitorModel){
-    val competitorByCompetitionResult = viewModel.competitorByCompetitionResult
-
-    when(val result = competitorByCompetitionResult.value){
-        is NetworkResponse.Success -> {
-            registeredCompetitorsList.addAll(result.data)
-        }
-        null -> {}
-        is NetworkResponse.Error -> {}
-        is NetworkResponse.Loading -> {}
     }
 }

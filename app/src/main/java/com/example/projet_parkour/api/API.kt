@@ -13,13 +13,13 @@ import com.example.projet_parkour.model.CreationCompetitorModelItem
 import com.example.projet_parkour.model.CreationCourseModelItem
 import com.example.projet_parkour.model.CreationObstacleModelItem
 import com.example.projet_parkour.model.MessageModel
+import com.example.projet_parkour.model.ObstacleIdModelItem
 import com.example.projet_parkour.model.ObstacleModel
 import com.example.projet_parkour.model.ObstacleModelItem
 import com.example.projet_parkour.model.PerformanceCreateModelItem
 import com.example.projet_parkour.model.PerformanceModel
 import com.example.projet_parkour.model.PerformanceObstacleCreateModelItem
 import com.example.projet_parkour.model.PerformanceObstacleModel
-import retrofit2.Call
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -51,7 +51,7 @@ interface API {
     suspend fun getCompetitors() : Response<CompetitorModel>
 
     @GET("/api/competitors/{id}")
-    suspend fun getCompetitorsById(@Path("id") id : Int) : Response<CompetitorModel>
+    suspend fun getCompetitorsById(@Path("id") id : Int) : Response<CompetitorModelItem>
 
     @POST("/api/competitors")
     suspend fun createCompetitor(@Body competitor : CreationCompetitorModelItem) : Response<CompetitorModelItem>
@@ -75,6 +75,9 @@ interface API {
 
     @POST("/api/courses")
     suspend fun createCourse(@Body course : CreationCourseModelItem) : Response<CoursesModelItem>
+
+    @POST("/api/courses/{id}/add_obstacle")
+    suspend fun addObstacleToCourse(@Path("id") courseId : Int, @Body obstacleId : ObstacleIdModelItem) : Response<MessageModel>
 
 
     //OBSTACLES
@@ -117,6 +120,9 @@ interface API {
 
     @GET("/api/performances/{id}")
     suspend fun getPerformancesById(@Path("id") id : Int) : Response<PerformanceModel>
+
+    @GET("/api/courses/{id}/performances")
+    suspend fun getCoursePerformancesByCourseId(@Path("id") id : Int) : Response<PerformanceModel>
 
     @POST("/api/performances")
     suspend fun createPerformance(@Body performance : PerformanceCreateModelItem) : Response<MessageModel>

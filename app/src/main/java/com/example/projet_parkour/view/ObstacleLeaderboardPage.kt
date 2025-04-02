@@ -31,22 +31,26 @@ import com.example.projet_parkour.api.NetworkResponse
 import com.example.projet_parkour.model.CompetitorModelItem
 import com.example.projet_parkour.model.PerformanceModel
 import com.example.projet_parkour.model.PerformanceModelItem
+import com.example.projet_parkour.model.PerformanceObstacleModel
 import com.example.projet_parkour.viewmodel.CompetitorsViewModel
 import com.example.projet_parkour.viewmodel.PerformanceObstaclesViewModel
 import com.example.projet_parkour.viewmodel.PerformancesViewModel
 
 @Composable
-fun LeaderboardPage(
+fun ObstacleLeaderboardPage(
     modifier: Modifier,
     viewModelPerformances: PerformancesViewModel,
     viewModelPerformanceObstacles: PerformanceObstaclesViewModel,
     competitorsViewModel: CompetitorsViewModel,
-    navController: NavController
+    navController: NavController,
+    obstacleId:Int
 ) {
     val competitionResult = viewModelPerformances.performancesResult.observeAsState()
+    val obstacleResult = viewModelPerformanceObstacles.performanceObstaclesResult.observeAsState()
     val competitorsResult = competitorsViewModel.competitorResult.observeAsState()
 
     LaunchedEffect(Unit) {
+        viewModelPerformanceObstacles.getPerformanceObstacles()
         viewModelPerformances.getPerformances()
         competitorsViewModel.getCompetitors()
     }
@@ -55,7 +59,7 @@ fun LeaderboardPage(
         modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = "Classement",
+        Text(text = "Classement sur Obstacle n°${obstacleId}",
             fontSize = 20.sp,
             modifier = Modifier.padding(top = 5.dp, bottom = 15.dp),
             fontWeight = FontWeight.Bold)
@@ -69,7 +73,7 @@ fun LeaderboardPage(
                 .background(MaterialTheme.colorScheme.secondary)
                 .padding(top = 20.dp, start = 10.dp, end = 10.dp, bottom = 20.dp)
         ) {
-            when (val result = competitionResult.value) {
+            when (val result = obstacleResult.value) {
                 is NetworkResponse.Error -> {
                     Text(text = result.message)
                 }
@@ -79,20 +83,19 @@ fun LeaderboardPage(
                 }
 
                 is NetworkResponse.Success -> {
-                    var tab: Array<PerformanceModel> = arrayOf(result.data);
-                    var sortedTab = tab[0].sortedWith (compareBy (
-                        {it.status =="defection"},// Trie selon l'abandon (faux => début, vrai => fin)
-                        {it.total_time} // Sinon selon le temps
+                    val filteredPerformances = result.data.filter { it.obstacle_id == obstacleId }
+                    var sortedTab = filteredPerformances.sortedWith (compareBy (
+                        {it.has_fell == 1},// Trie selon la chute (pas tombé => début, tombé => fin)
+                        {it.time} // Sinon selon le temps
                     ));
                     LazyColumn {
                         items(sortedTab.size) { index ->
                             val data = sortedTab[index]
                             Card(
                                 colors = CardDefaults.cardColors(containerColor =
-                                    when(val status = data.status) {
-                                        "defection" -> Color.Red
-                                        "to_verify" -> Color.Gray
-                                        "over" -> MaterialTheme.colorScheme.primary
+                                    when(data.has_fell) {
+                                        1 -> Color.Red
+                                        0 -> MaterialTheme.colorScheme.primary
                                         else -> {
                                             MaterialTheme.colorScheme.secondary
                                         }
@@ -102,33 +105,56 @@ fun LeaderboardPage(
                                     .fillMaxWidth()
                                     .padding(start = 10.dp, end = 10.dp, bottom = 5.dp),
                             ) {
-                                Row (modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(10.dp),
-                                    horizontalArrangement = Arrangement.SpaceBetween){
-                                    Text(modifier = Modifier.padding(10.dp),text = "${index+1}")
-                                    when (val competitorResult = competitorsResult.value) {
-                                        is NetworkResponse.Error -> {
-                                            Text(text = competitorResult.message)
-                                        }
-                                        is NetworkResponse.Loading -> {
-                                            CircularProgressIndicator()
-                                        }
-                                        is NetworkResponse.Success -> {
-                                            val competitor = competitorResult.data.find { it.id == data.competitor_id }
-                                            Text(modifier = Modifier.padding(10.dp),text = ""+ competitor?.first_name+" "+competitor?.last_name)
-                                        }
-                                        null -> {}
+
+                                when (val competitionResult = competitionResult.value) {
+                                    is NetworkResponse.Error -> {
+                                        Text(text = competitionResult.message)
                                     }
-                                    Text(modifier = Modifier.padding(10.dp),text = "${data.total_time}ms")
+                                    is NetworkResponse.Loading -> {
+                                        CircularProgressIndicator()
+                                    }
+                                    is NetworkResponse.Success -> {
+                                        val competition = competitionResult.data.find { it.id == data.performance_id }
+
+                                        when (val competitorResult = competitorsResult.value) {
+                                            is NetworkResponse.Error -> {
+                                                Text(text = competitorResult.message)
+                                            }
+                                            is NetworkResponse.Loading -> {
+                                                CircularProgressIndicator()
+                                            }
+                                            is NetworkResponse.Success -> {
+                                                val competitor = competitorResult.data.find { it.id == competition?.competitor_id }
+                                                Row (modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .padding(10.dp),
+                                                    horizontalArrangement = Arrangement.SpaceBetween) {
+                                                    Text(
+                                                        modifier = Modifier.padding(10.dp),
+                                                        text = "${index + 1}"
+                                                    )
+                                                    Text(
+                                                        modifier = Modifier.padding(10.dp),
+                                                        text = "" + competitor?.first_name + " " + competitor?.last_name
+                                                    )
+                                                    Text(
+                                                        modifier = Modifier.padding(10.dp),
+                                                        text = "${data.time}ms"
+                                                    )
+                                                }
+                                                Row (modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .padding(10.dp),
+                                                    horizontalArrangement = Arrangement.SpaceBetween){
+                                                    Text(modifier = Modifier.padding(10.dp),text = "Performance n°"+ competition?.id)
+                                                }
+                                            }
+                                            null -> {}
+                                        }
+                                    }
+                                    null -> {}
                                 }
-                                Row (modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(10.dp),
-                                    horizontalArrangement = Arrangement.SpaceBetween){
-                                    Text(modifier = Modifier.padding(10.dp),text = data.status)
-                                    Text(modifier = Modifier.padding(10.dp),text = "Cours ID :"+data.course_id)
-                                }
+
                             }
                         }
                     }

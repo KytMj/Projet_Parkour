@@ -1,16 +1,15 @@
 package com.example.projet_parkour.view
 
 import android.content.Context
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -26,18 +25,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.projet_parkour.api.NetworkResponse
-import com.example.projet_parkour.model.CompetitorModel
 import com.example.projet_parkour.model.CourseObstacleModel
 import com.example.projet_parkour.model.ObstacleModel
 import com.example.projet_parkour.view.utils.DropdownMenuComposable
 import com.example.projet_parkour.view.utils.FloatingButtonAdd
-import com.example.projet_parkour.viewmodel.CompetitorsViewModel
 import com.example.projet_parkour.viewmodel.ObstaclesViewModel
 
 @Composable
@@ -48,17 +44,40 @@ fun ObstaclesPage(
     navController: NavController,
     context: Context,
     isEnableConstructMode: MutableState<Boolean>,
+    isCompetitionOver: MutableState<Boolean>,
     ) {
     val selectedText = remember { mutableStateOf("") }
-    var idAddCompetitor = remember { mutableIntStateOf(-1) }
+    var idAddObstacle = remember { mutableIntStateOf(-1) }
     val obstaclesList = CourseObstacleModel()
+    val addObstacleToCourseResult = viewModel.addObstacleToCourseResult.observeAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.getObstacles()
+        viewModel.getObstaclesByCourseId(courseId)
+    }
 
     Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)){
         Column {
-            AddToListRegisteredObstacles(viewModel, obstaclesList)
-            ObstaclesInParkourPage(modifier, viewModel, courseId, obstaclesList)
-            if(isEnableConstructMode.value){
+            viewModel.AddToListRegisteredObstacles(obstaclesList)
+            ObstaclesInParkourPage(modifier, viewModel, courseId, obstaclesList, navController)
+            if (selectedText.value != "") {
+                idAddObstacle.intValue =
+                    selectedText.value.split(".")[0].substring(2).toInt()
+            }
+
+            if(isEnableConstructMode.value && !isCompetitionOver.value){
                 AvailableObstaclesPage(modifier, viewModel, selectedText, obstaclesList)
+                Button(onClick = {
+                    val result = viewModel.RegisterObstacleOnClick(
+                        idAddObstacle.intValue,
+                        courseId,
+                        context,
+                        addObstacleToCourseResult
+                    )
+                    if (result) navController.navigate("obstacles_page/${courseId}")
+                }) {
+                    Text("Ajouter un obstacle")
+                }
             }
         }
         if (isEnableConstructMode.value){
@@ -80,12 +99,8 @@ fun AvailableObstaclesPage(
 ) {
     val competitorResult = viewModel.obstaclesResult.observeAsState()
 
-    LaunchedEffect(Unit) {
-        viewModel.getObstacles()
-    }
-
     Column(
-        modifier = modifier.fillMaxWidth().fillMaxHeight(),
+        modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         when(val result = competitorResult.value){
@@ -112,7 +127,7 @@ fun AvailableObstaclesPage(
                 val obstacles = ArrayList<String>()
 
                 data.forEach { element ->
-                    obstacles.add(element.name)
+                    obstacles.add("ID"+element.id+". "+element.name)
                 }
 
                 DropdownMenuComposable(obstacles, "Obstacles disponibles", selectedText)
@@ -127,16 +142,13 @@ fun ObstaclesInParkourPage(
     modifier: Modifier,
     viewModel: ObstaclesViewModel,
     courseId: Int,
-    obstaclesList: CourseObstacleModel
+    obstaclesList: CourseObstacleModel,
+    navController: NavController
 ) {
     val obstacleResult = viewModel.obstaclesByCourseResult.observeAsState()
 
-    LaunchedEffect(Unit) {
-        viewModel.getObstaclesByCourseId(courseId)
-    }
-
     Column(
-        modifier = modifier.fillMaxWidth().fillMaxHeight(),
+        modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(text = "Obstacles de la course",
@@ -146,7 +158,6 @@ fun ObstaclesInParkourPage(
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
-                .fillMaxHeight()
                 .padding(10.dp)
                 .fillMaxWidth()
                 .clip(shape = RoundedCornerShape(20.dp))
@@ -172,7 +183,9 @@ fun ObstaclesInParkourPage(
                                 modifier = Modifier.fillMaxWidth()
                                     .padding(start = 10.dp, end = 10.dp, bottom = 5.dp),
                             ) {
-                                Text(modifier = Modifier.padding(10.dp), text = data.obstacle_name)
+                                Button(onClick = { navController.navigate("obstacleleaderboard_page/${data.id}")}){
+                                    Text(modifier = Modifier.padding(10.dp), text = ""+data.id+" "+data.obstacle_name)
+                                }
                             }
                         }
                     }
@@ -180,18 +193,5 @@ fun ObstaclesInParkourPage(
                 null -> {}
             }
         }
-    }
-}
-
-private fun AddToListRegisteredObstacles(viewModel: ObstaclesViewModel, registeredObstaclesList: CourseObstacleModel){
-    val competitorByCompetitionResult = viewModel.obstaclesByCourseResult
-
-    when(val result = competitorByCompetitionResult.value){
-        is NetworkResponse.Success -> {
-            registeredObstaclesList.addAll(result.data.second)
-        }
-        null -> {}
-        is NetworkResponse.Error -> {}
-        is NetworkResponse.Loading -> {}
     }
 }
