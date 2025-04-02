@@ -173,7 +173,7 @@ fun ObstaclesInParkourPage(
                                 modifier = Modifier.fillMaxWidth()
                                     .padding(start = 10.dp, end = 10.dp, bottom = 5.dp),
                             ) {
-                                Text(modifier = Modifier.padding(10.dp), text = data.obstacle_name)
+                                Text(modifier = Modifier.padding(10.dp), text = ""+data.id+" "+data.obstacle_name)
                             }
                         }
                     }

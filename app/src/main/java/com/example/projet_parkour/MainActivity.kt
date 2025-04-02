@@ -38,6 +38,7 @@ import com.example.projet_parkour.view.utils.FloatingButtonAdd
 import com.example.projet_parkour.view.utils.Header
 import com.example.projet_parkour.view.InscriptionCompetitorsPage
 import com.example.projet_parkour.view.LeaderboardPage
+import com.example.projet_parkour.view.ObstacleLeaderboardPage
 import com.example.projet_parkour.view.ObstaclesPage
 import com.example.projet_parkour.viewmodel.CompetitionsViewModel
 import com.example.projet_parkour.viewmodel.CompetitorsViewModel
@@ -69,7 +70,7 @@ class MainActivity : ComponentActivity() {
                 Box(modifier = Modifier.padding(top = 40.dp, bottom = 40.dp).fillMaxSize().background(MaterialTheme.colorScheme.background)) {
                     Column{
                         Header(modifier = Modifier, navController, isEnableConstructMode)
-                        NavHost(navController = navController, startDestination = /*"competitions_page"*//*"leaderboard_page"*/ "courseleaderboard_page/2571"+
+                        NavHost(navController = navController, startDestination = /*"competitions_page"*//*"leaderboard_page"*/ /*"courseleaderboard_page/2571"*/"obstacleleaderboard_page/4298"+
                                 "", builder = {
                             composable("competitions_page") {
                                 CompetitionsPage(
@@ -163,6 +164,24 @@ class MainActivity : ComponentActivity() {
                                         competitorsViewModel,
                                         navController,
                                         courseId
+                                    )
+                                }
+                            }
+
+                            composable("obstacleleaderboard_page/{obstacleId}", arguments = listOf(
+                                navArgument("obstacleId"){
+                                    type = NavType.IntType
+                                }
+                            )) { backStackEntry ->
+                                val obstacleId = backStackEntry.arguments?.getInt("obstacleId")
+                                if (obstacleId != null) {
+                                    ObstacleLeaderboardPage(
+                                        modifier = Modifier.padding(16.dp),
+                                        performancesViewModel,
+                                        performanceObstaclesViewModel,
+                                        competitorsViewModel,
+                                        navController,
+                                        obstacleId
                                     )
                                 }
                             }
