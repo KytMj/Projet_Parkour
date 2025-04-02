@@ -57,7 +57,8 @@ fun InscriptionCompetitorsPage(
     ageMax: Int,
     gender: String,
     navController: NavController,
-    context: Context
+    context: Context,
+    isCompetitionOver: MutableState<Boolean>
 ) {
     val selectedText = remember { mutableStateOf("") }
     var idAddCompetitor = remember { mutableIntStateOf(-1) }
@@ -84,29 +85,31 @@ fun InscriptionCompetitorsPage(
                     ).padding(10.dp)
             ) {
                 viewModel.AddToListRegisteredCompetitors(registeredCompetitorsList)
-                PotentialsCompetitorsPage(
-                    modifier,
-                    viewModel,
-                    ageMin,
-                    ageMax,
-                    gender,
-                    selectedText,
-                    registeredCompetitorsList
-                )
-                if (selectedText.value != "") {
-                    idAddCompetitor.intValue =
-                        selectedText.value.split(".")[0].substring(3).toInt()
-                }
-                Button(onClick = {
-                    val result = viewModel.RegisterCompetitorOnClick(
-                        idAddCompetitor.intValue,
-                        competitionId,
-                        context,
-                        addCompetitorResult
+                if (!isCompetitionOver.value){
+                    PotentialsCompetitorsPage(
+                        modifier,
+                        viewModel,
+                        ageMin,
+                        ageMax,
+                        gender,
+                        selectedText,
+                        registeredCompetitorsList
                     )
-                    if (result) navController.navigate("inscription_competitors_page/${competitionId}:${ageMin},${ageMax},${gender}")
-                }) {
-                    Text("Inscrire un participant")
+                    if (selectedText.value != "") {
+                        idAddCompetitor.intValue =
+                            selectedText.value.split(".")[0].substring(3).toInt()
+                    }
+                    Button(onClick = {
+                        val result = viewModel.RegisterCompetitorOnClick(
+                            idAddCompetitor.intValue,
+                            competitionId,
+                            context,
+                            addCompetitorResult
+                        )
+                        if (result) navController.navigate("inscription_competitors_page/${competitionId}:${ageMin},${ageMax},${gender}")
+                    }) {
+                        Text("Inscrire un participant")
+                    }
                 }
             }
             RegisteredCompetitorsPage(modifier, viewModel, competitionId)

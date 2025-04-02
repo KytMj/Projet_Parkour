@@ -1,12 +1,9 @@
 package com.example.projet_parkour.view
 
 import android.content.Context
-import android.util.Log
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -21,7 +18,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.State
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -29,20 +25,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.projet_parkour.api.NetworkResponse
-import com.example.projet_parkour.model.CompetitorIdModelItem
-import com.example.projet_parkour.model.CompetitorModel
 import com.example.projet_parkour.model.CourseObstacleModel
-import com.example.projet_parkour.model.MessageModel
 import com.example.projet_parkour.model.ObstacleModel
 import com.example.projet_parkour.view.utils.DropdownMenuComposable
 import com.example.projet_parkour.view.utils.FloatingButtonAdd
-import com.example.projet_parkour.viewmodel.CompetitorsViewModel
 import com.example.projet_parkour.viewmodel.ObstaclesViewModel
 
 @Composable
@@ -53,6 +44,7 @@ fun ObstaclesPage(
     navController: NavController,
     context: Context,
     isEnableConstructMode: MutableState<Boolean>,
+    isCompetitionOver: MutableState<Boolean>,
     ) {
     val selectedText = remember { mutableStateOf("") }
     var idAddObstacle = remember { mutableIntStateOf(-1) }
@@ -73,7 +65,7 @@ fun ObstaclesPage(
                     selectedText.value.split(".")[0].substring(2).toInt()
             }
 
-            if(isEnableConstructMode.value){
+            if(isEnableConstructMode.value && !isCompetitionOver.value){
                 AvailableObstaclesPage(modifier, viewModel, selectedText, obstaclesList)
                 Button(onClick = {
                     val result = viewModel.RegisterObstacleOnClick(

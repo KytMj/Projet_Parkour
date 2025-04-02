@@ -18,6 +18,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,7 +37,8 @@ import com.example.projet_parkour.viewmodel.CompetitionsViewModel
 fun CompetitionsPage(
     modifier: Modifier,
     viewModel: CompetitionsViewModel,
-    navController: NavController
+    navController: NavController,
+    isCompetitionOver: MutableState<Boolean>
 ){
     val competitionResult = viewModel.competitionResult.observeAsState()
     val configuration = LocalConfiguration.current
@@ -67,6 +69,7 @@ fun CompetitionsPage(
                 LazyColumn {
                     items(result.data.size){ index ->
                         val data = result.data[index]
+                        if (data.status == "finished") isCompetitionOver.value = true
                         Card(
                             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary),
                             modifier = Modifier.padding(start = 10.dp, end = 10.dp, bottom = 20.dp).shadow(
