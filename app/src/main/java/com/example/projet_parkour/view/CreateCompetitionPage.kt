@@ -38,8 +38,6 @@ fun CreateCompetitionPage(
     navController: NavController,
     context: Context
 ){
-    val createCompetitionResult = viewModel.createCompetitionResult.observeAsState()
-
     val nameState by viewModel.nameCompetition.observeAsState() ;
     val ageMiniState by viewModel.ageMiniCompet.observeAsState() ;
     val ageMaxiState by viewModel.ageMaxiCompet.observeAsState() ;

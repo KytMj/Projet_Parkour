@@ -108,8 +108,6 @@ fun DisplayCoursesCompetitors(
                 .padding(bottom = 10.dp)
                 .align(Alignment.BottomCenter),
             onClick = {
-                //TODO chrono
-                //navController.navigate("")
             },
             containerColor = MaterialTheme.colorScheme.secondary,
             contentColor = Color.Black,
@@ -164,11 +162,6 @@ fun CoursesPage(
                         Card(
                             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary),
                             modifier = Modifier.padding(top=5.dp,start = 10.dp, end = 10.dp, bottom = 5.dp),
-                            onClick = {
-                                /*if(!(data.is_over)){
-                                    //TODO accès au chrono ?
-                                }*/
-                            }
                         ) {
                             Column (modifier = Modifier.padding(25.dp)){
                                 Row {

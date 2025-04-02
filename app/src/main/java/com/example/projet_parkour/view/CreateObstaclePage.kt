@@ -17,6 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -72,15 +73,6 @@ fun CreateObstaclePage(
                 }
             }) {
                 Text(text = "Enregistrer dans la base")
-            }
-            Button(onClick = {
-                val result = viewModel.checkAndAddObstacleToCourse(context, courseId)
-                if(result){
-                    viewModel.nameObstacle.postValue("")
-                    navController.navigate("obstacles_page/${courseId}")
-                }
-            }) {
-                Text(text = "Enregistrer et ajouter à la course")
             }
         }
     }

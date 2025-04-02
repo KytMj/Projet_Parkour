@@ -1,7 +1,9 @@
 package com.example.projet_parkour.viewmodel
 
 import android.content.Context
+import android.util.Log
 import android.widget.Toast
+import androidx.compose.runtime.MutableIntState
 import androidx.compose.runtime.State
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -9,7 +11,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.projet_parkour.api.NetworkResponse
 import com.example.projet_parkour.api.RetrofitInstance
-import com.example.projet_parkour.model.CompetitorIdModelItem
 import com.example.projet_parkour.model.CourseObstacleModel
 import com.example.projet_parkour.model.CreationObstacleModelItem
 import com.example.projet_parkour.model.MessageModel
@@ -143,49 +144,6 @@ class ObstaclesViewModel : ViewModel() {
         return true;
     }
 
-    fun checkAndAddObstacleToCourse(
-        context: Context,
-        courseId: Int
-    ): Boolean {
-        if (nameObstacle.value == ""){
-            Toast.makeText(context, "Le champ Nom Compétition ne contient rien", Toast.LENGTH_LONG).show()
-            return false;
-        }
-
-        val obstacle = CreationObstacleModelItem(
-            name = nameObstacle.value.toString()
-        );
-
-        createObstacle(obstacle)
-
-        val resultData : MutableLiveData<ObstacleModelItem> = MutableLiveData()
-        when (val result = createObstacleResult.value) {
-            is NetworkResponse.Error -> Toast.makeText(context, "error: "+ result.message, Toast.LENGTH_LONG).show()
-            is NetworkResponse.Loading -> {}
-            is NetworkResponse.Success -> {
-                resultData.value = result.data
-                Toast.makeText(context, "Obstacle bien enregistré dans la base !", Toast.LENGTH_LONG).show()
-            }
-            null -> {}
-        }
-
-        val newObstacleId = resultData.value?.id?.let { ObstacleIdModelItem(it) }
-        if (newObstacleId != null) {
-            addObstacleToCourse(courseId, newObstacleId)
-        }
-
-        when (val result = addObstacleToCourseResult.value) {
-            is NetworkResponse.Error -> Toast.makeText(context, "error: "+ result.message, Toast.LENGTH_LONG).show()
-            is NetworkResponse.Loading -> {}
-            is NetworkResponse.Success -> {
-                Toast.makeText(context, "Obstacle bien ajouté à la course !", Toast.LENGTH_LONG).show()
-            }
-            null -> {}
-        }
-
-        return true;
-    }
-
     fun RegisterObstacleOnClick (
         idAddObstacle: Int,
         courseId: Int,
@@ -204,6 +162,17 @@ class ObstaclesViewModel : ViewModel() {
         else{
             Toast.makeText(context, "Vous n'avez pas sélectionné d'obstacles à inscrire", Toast.LENGTH_LONG).show()
             return false
+        }
+    }
+
+    fun AddToListRegisteredObstacles(registeredObstaclesList: CourseObstacleModel){
+        when(val result = obstaclesByCourseResult.value){
+            is NetworkResponse.Success -> {
+                registeredObstaclesList.addAll(result.data)
+            }
+            null -> {}
+            is NetworkResponse.Error -> {}
+            is NetworkResponse.Loading -> {}
         }
     }
 

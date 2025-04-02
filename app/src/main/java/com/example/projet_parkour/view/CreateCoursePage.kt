@@ -3,7 +3,6 @@ package com.example.projet_parkour.view
 import android.content.Context
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -11,10 +10,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -27,11 +24,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.projet_parkour.api.NetworkResponse
-import com.example.projet_parkour.model.CreationCompetitorModelItem
-import com.example.projet_parkour.model.CreationCourseModelItem
-import com.example.projet_parkour.view.utils.CalendarComposable
-import com.example.projet_parkour.viewmodel.CompetitorsViewModel
 import com.example.projet_parkour.viewmodel.CoursesViewModel
 
 @Composable
@@ -42,8 +34,6 @@ fun CreateCoursePage(
     navController: NavController,
     context: Context
 ) {
-    val createCourseResult = viewModel.createCourseResult.observeAsState()
-
     val nameState by viewModel.nameCourse.observeAsState() ;
     val maxDurationState by viewModel.maxDurationCourse.observeAsState() ;
 

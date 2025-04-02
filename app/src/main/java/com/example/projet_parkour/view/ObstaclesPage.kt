@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -56,6 +57,7 @@ fun ObstaclesPage(
     val selectedText = remember { mutableStateOf("") }
     var idAddObstacle = remember { mutableIntStateOf(-1) }
     val obstaclesList = CourseObstacleModel()
+    val addObstacleToCourseResult = viewModel.addObstacleToCourseResult.observeAsState()
 
     LaunchedEffect(Unit) {
         viewModel.getObstacles()
@@ -64,10 +66,26 @@ fun ObstaclesPage(
 
     Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)){
         Column {
-            AddToListRegisteredObstacles(viewModel, obstaclesList)
+            viewModel.AddToListRegisteredObstacles(obstaclesList)
             ObstaclesInParkourPage(modifier, viewModel, courseId, obstaclesList)
+            if (selectedText.value != "") {
+                idAddObstacle.intValue =
+                    selectedText.value.split(".")[0].substring(2).toInt()
+            }
+
             if(isEnableConstructMode.value){
                 AvailableObstaclesPage(modifier, viewModel, selectedText, obstaclesList)
+                Button(onClick = {
+                    val result = viewModel.RegisterObstacleOnClick(
+                        idAddObstacle.intValue,
+                        courseId,
+                        context,
+                        addObstacleToCourseResult
+                    )
+                    if (result) navController.navigate("obstacles_page/${courseId}")
+                }) {
+                    Text("Ajouter un obstacle")
+                }
             }
         }
         if (isEnableConstructMode.value){
@@ -90,7 +108,7 @@ fun AvailableObstaclesPage(
     val competitorResult = viewModel.obstaclesResult.observeAsState()
 
     Column(
-        modifier = modifier.fillMaxWidth().fillMaxHeight(),
+        modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         when(val result = competitorResult.value){
@@ -180,18 +198,5 @@ fun ObstaclesInParkourPage(
                 null -> {}
             }
         }
-    }
-}
-
-private fun AddToListRegisteredObstacles(viewModel: ObstaclesViewModel, registeredObstaclesList: CourseObstacleModel){
-    val competitorByCompetitionResult = viewModel.obstaclesByCourseResult
-
-    when(val result = competitorByCompetitionResult.value){
-        is NetworkResponse.Success -> {
-            registeredObstaclesList.addAll(result.data)
-        }
-        null -> {}
-        is NetworkResponse.Error -> {}
-        is NetworkResponse.Loading -> {}
     }
 }

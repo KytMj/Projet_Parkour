@@ -3,7 +3,6 @@ package com.example.projet_parkour.view
 import android.content.Context
 import android.os.Build
 import android.util.Log
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -28,7 +27,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.State
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -42,9 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.projet_parkour.api.NetworkResponse
-import com.example.projet_parkour.model.CompetitorIdModelItem
 import com.example.projet_parkour.model.CompetitorModel
-import com.example.projet_parkour.model.MessageModel
 import com.example.projet_parkour.ui.theme.Pink40
 import com.example.projet_parkour.view.utils.DropdownMenuComposable
 import com.example.projet_parkour.viewmodel.CompetitorsViewModel
@@ -98,8 +94,8 @@ fun InscriptionCompetitorsPage(
                     registeredCompetitorsList
                 )
                 if (selectedText.value != "") {
-                    idAddCompetitor.value =
-                        selectedText.value.split(".").get(0).substring(3).toInt()
+                    idAddCompetitor.intValue =
+                        selectedText.value.split(".")[0].substring(3).toInt()
                 }
                 Button(onClick = {
                     val result = viewModel.RegisterCompetitorOnClick(

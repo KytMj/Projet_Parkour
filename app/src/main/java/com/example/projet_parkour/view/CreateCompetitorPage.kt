@@ -42,8 +42,6 @@ fun CreateCompetitorPage(
     ageMax: Int,
     gender: String
 ) {
-    val createCompetitorResult = viewModel.createCompetitorResult.observeAsState()
-
     val lastNameState by viewModel.lastName.observeAsState() ;
     val firstNameState by viewModel.firstName.observeAsState() ;
     val emailState by viewModel.email.observeAsState() ;
@@ -170,27 +168,7 @@ fun CreateCompetitorPage(
                     Toast.makeText(context, "Des champs ne sont pas valides", Toast.LENGTH_LONG).show()
                 }
             }) {
-                Text(text = "Enregistrer")
-            }
-            Button(onClick = {
-                if(isValidLastName && isValidFirstName && isValidEmail && isValidPhone){
-                    val response = viewModel.checkAndAddCompetitorToCompetition(selectedOptionGender, context, mDate,
-                        competitionId, ageMin, ageMax, gender)
-                    if(response) {
-                        viewModel.lastName.postValue("")
-                        viewModel.firstName.postValue("")
-                        viewModel.email.postValue("")
-                        viewModel.phone.postValue("")
-                        viewModel.bornAt.postValue("")
-                        mDate.value = ""
-                        navController.navigate("inscription_competitors_page/${competitionId}:${ageMin},${ageMax},${gender}")
-                    }
-                }
-                else{
-                    Toast.makeText(context, "Des champs ne sont pas valides", Toast.LENGTH_LONG).show()
-                }
-            }) {
-                Text(text = "Enregistrer et ajouter à la compétition")
+                Text(text = "Enregistrer dans la base")
             }
         }
     }
