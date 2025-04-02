@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
@@ -17,9 +18,11 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.unit.Dp
 import com.example.projet_parkour.api.NetworkResponse
 import com.example.projet_parkour.bdd.AppDatabase
 import com.example.projet_parkour.bdd.Perf
@@ -60,39 +63,33 @@ class CompetitionState(coursesViewModel: CoursesViewModel, competitorsViewModel:
     @Composable
     fun init(comp: CompetitionModelItem){
         val arbitrage = remember { mutableStateOf(false) }
+
         competition.value = comp
-        println("--------------------------------- debugage:id: ${competition.value?.id} ----------------------------------")
         compId.value = competition.value?.id
         initCompetitiors()
         initCourses()
         initObstacles()
-        Button(onClick = {arbitrage.value = true}) { Text("arbitrer") }
+        if (!arbitrage.value) Button(onClick = {arbitrage.value = true}) { Text("arbitrer") }
         if (arbitrage.value) arbitrage()
     }
 
     @Composable
     fun arbitrage(){
-        Column {
-            if (courses.value?.isNotEmpty() == true && competitors.value?.isNotEmpty() == true){
-//                val iterator = Iterator(courses.value!!, competitors.value!!, obstacles.value)
-//                iterator.getNext()
-            }
-
+        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier
+            .fillMaxSize()
+            .padding(top = Dp(50.0f))) {
             val bdd = AppDatabase.getInstance(LocalContext.current)
-
             var currTime = remember { mutableStateOf(0L) }
             var isRunning by remember { mutableStateOf(false) }
             var startTime by remember { mutableStateOf(0L) }
             var lastObstacleTime by remember { mutableStateOf(0L) }
-
             val allCompetitors = remember { competitors.value.orEmpty() }
             val allCourses = remember { courses.value.orEmpty().filter { it.is_over == 0 } }
             val allObstacles = remember { allCourses.associateWith { course -> obstacles.value[course.id].orEmpty() } }
-
-
             var courseIndex by remember { mutableStateOf(0) }
             var competitorIndex by remember { mutableStateOf(0) }
             var obstacleIndex by remember { mutableStateOf(0) }
+
 
             LaunchedEffect(competition.value) {
                 CoroutineScope(Dispatchers.IO).launch {
@@ -103,12 +100,7 @@ class CompetitionState(coursesViewModel: CoursesViewModel, competitorsViewModel:
                         obstacleIndex = res.obstacleIndex
                     }
                 }
-
             }
-
-
-            val perfs = remember { mutableStateMapOf<Triple<CompetitorModelItem, CoursesModelItem, CourseObstacleModelItem>, Perfs>() }
-
             LaunchedEffect(isRunning) {
                 if (isRunning) {
                     startTime = SystemClock.elapsedRealtime()
@@ -118,7 +110,8 @@ class CompetitionState(coursesViewModel: CoursesViewModel, competitorsViewModel:
                     }
                 }
             }
-
+            println("debugage: course ${allCourses.size}")
+            println("debugage: competitor ${allCompetitors.size}")
             if (allCourses.isNotEmpty() && allCompetitors.isNotEmpty()) {
                 val currentCourse = allCourses[courseIndex]
                 val currentCompetitor = allCompetitors[competitorIndex]
@@ -127,22 +120,13 @@ class CompetitionState(coursesViewModel: CoursesViewModel, competitorsViewModel:
                 if (currentObstacleList.isNotEmpty()) {
                     val currentObstacle = currentObstacleList[obstacleIndex]
 
-                    Text(currentCourse.name)
-                    Text("${currentCompetitor.first_name} ${currentCompetitor.last_name}")
-                    Text(currentObstacle.obstacle_name)
+                    Text("Course:  ${currentCourse.name}")
+                    Text("Participant: ${currentCompetitor.first_name} ${currentCompetitor.last_name}")
+                    Text("Obstacle: ${currentObstacle.obstacle_name}")
 
                     Button(onClick = {
                         if (isRunning) {
-
                             val elapsedTime = currTime.value - lastObstacleTime
-
-                            val perf = Perfs(
-                                obstacleId = currentObstacle.id,
-                                time = elapsedTime,
-                                hasfell = false
-                            )
-                            perfs[Triple(currentCompetitor, currentCourse, currentObstacle)] = perf
-                            println("here")
                             CoroutineScope(Dispatchers.IO).launch {
                                 bdd.perfDao().insertPerf(Perf(
                                     courseId = currentCourse.id,
@@ -157,14 +141,9 @@ class CompetitionState(coursesViewModel: CoursesViewModel, competitorsViewModel:
                                     obstacleIndex = obstacleIndex
                                 ))
                             }
-
-
                             lastObstacleTime = currTime.value
-
-
-                            if (obstacleIndex + 1 < currentObstacleList.size) {
-                                obstacleIndex++
-                            } else {
+                            if (obstacleIndex + 1 < currentObstacleList.size) obstacleIndex++
+                            else {
                                 obstacleIndex = 0
                                 if (competitorIndex + 1 < allCompetitors.size) {
                                     competitorIndex++
@@ -172,21 +151,15 @@ class CompetitionState(coursesViewModel: CoursesViewModel, competitorsViewModel:
                                     currTime.value = lastObstacleTime
                                 } else {
                                     competitorIndex = 0
-                                    if (courseIndex + 1 < allCourses.size) {
-
-                                        courseIndex++
-                                    } else {
-                                        courseIndex = 0
-                                    }
+                                    if (courseIndex + 1 < allCourses.size) courseIndex++
                                 }
                             }
                         } else {
                             isRunning = true
                             lastObstacleTime = currTime.value
                         }
-                    }) {
-                        Text(if (isRunning) "Enregistrer" else "Démarrer")
-                    }
+                    }) {Text(if (isRunning) "Enregistrer" else "Démarrer")}
+
                     if (isRunning){
                         Button(onClick = {
                             if (competition.value?.has_retry == 1){
@@ -201,11 +174,10 @@ class CompetitionState(coursesViewModel: CoursesViewModel, competitorsViewModel:
                                         courseIndex++
                                     }
                             }
-                        }) { "Chute" }
+                        }) { Text("Chute") }
                     }
                 }
             }
-
             Text("Chrono: ${currTime.value.milliseconds}")
         }
     }
@@ -213,7 +185,7 @@ class CompetitionState(coursesViewModel: CoursesViewModel, competitorsViewModel:
 
     @Composable
     fun initCompetitiors(){
-        val competitorResult = competitorsViewModel.competitorResult.observeAsState()
+        val competitorResult = competitorsViewModel.competitorByCompetitionResult.observeAsState()
         LaunchedEffect(competition.value) {
             if (competition.value?.id != null){
                 competitorsViewModel.getCompetitorsByCompetitionId(competition.value?.id!!)
@@ -234,14 +206,13 @@ class CompetitionState(coursesViewModel: CoursesViewModel, competitorsViewModel:
     @Composable
     fun initCourses() {
         val courseResult = coursesViewModel.coursesResult.observeAsState()
-        // Ensure the network call is triggered when `compIdValue` changes
+
         LaunchedEffect(competition.value) {
             if (competition.value?.id != null) {
                 coursesViewModel.getCoursesByCompetitionId(competition.value?.id!!)
             }
         }
-//        if (competition.value?.id != null)
-//        coursesViewModel.getCoursesByCompetitionId(competition.value?.id!!)
+
         when (val result = courseResult.value) {
             is NetworkResponse.Error -> Text(text = result.message)
             is NetworkResponse.Loading -> CircularProgressIndicator()

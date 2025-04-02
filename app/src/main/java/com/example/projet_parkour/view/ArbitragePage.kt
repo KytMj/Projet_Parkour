@@ -23,14 +23,42 @@ import com.example.projet_parkour.viewmodel.CompetitorsViewModel
 import com.example.projet_parkour.viewmodel.CoursesViewModel
 import com.example.projet_parkour.viewmodel.ObstaclesViewModel
 
+
 @Composable
-fun ArbitragePage(competitionViewModel: CompetitionsViewModel, coursesViewModel: CoursesViewModel, competitorsViewModel: CompetitorsViewModel, obstaclesViewModel: ObstaclesViewModel){
-    Column {
-        selectParams(competitionViewModel, coursesViewModel, competitorsViewModel, obstaclesViewModel)
-    }
+fun ArbitragePage(competitionViewModel: CompetitionsViewModel, coursesViewModel: CoursesViewModel, competitorsViewModel: CompetitorsViewModel, obstaclesViewModel: ObstaclesViewModel, competitionId : Int ) {
+    val selectedCompetition = remember { mutableStateOf<CompetitionModelItem?>(null) }
+    selectCompetition(competitionViewModel, selectedCompetition, competitionId)
+    val state = remember { CompetitionState(coursesViewModel, competitorsViewModel, obstaclesViewModel) }
+    if (selectedCompetition.value != null) state.init(selectedCompetition.value!!)
 }
 
+@Composable
+fun selectCompetition(viewModel: CompetitionsViewModel, selectedCompetition: MutableState<CompetitionModelItem?>, competitionId : Int) {
+    val competitionResult = viewModel.competitionResult.observeAsState()
 
+    LaunchedEffect(Unit) {
+        viewModel.getCompetitions()
+    }
+
+    when (val result = competitionResult.value) {
+        is NetworkResponse.Error -> Text(text = result.message)
+        is NetworkResponse.Loading -> CircularProgressIndicator()
+        is NetworkResponse.Success -> {
+            result.data.forEach {competition->
+                if (competition.id == competitionId){
+                    selectedCompetition.value = competition
+                }
+            }
+//            DropdownSelector(
+//                title = "Sélectionnez une compétition",
+//                items = result.data,
+//                selectedItem = selectedCompetition,
+//                labelExtractor = { it.name.toString() }
+//            )
+        }
+        null -> {}
+    }
+}
 
 
 @Composable
@@ -71,227 +99,3 @@ fun <T> DropdownSelector(
 
 
 
-
-@Composable
-fun selectParams(competitionViewModel: CompetitionsViewModel, coursesViewModel: CoursesViewModel, competitorsViewModel: CompetitorsViewModel, obstaclesViewModel: ObstaclesViewModel) {
-    val selectedCompetition = remember { mutableStateOf<CompetitionModelItem?>(null) }
-    val bdd = AppDatabase.getInstance(LocalContext.current)
-
-
-    selectCompetition(competitionViewModel, selectedCompetition, bdd)
-    val state = remember { CompetitionState(coursesViewModel, competitorsViewModel, obstaclesViewModel) }
-    if (selectedCompetition.value != null) state.init(selectedCompetition.value!!)
-
-
-}
-
-
-
-@Composable
-fun selectCompetition(viewModel: CompetitionsViewModel, selectedCompetition: MutableState<CompetitionModelItem?>, bdd: AppDatabase) {
-    val competitionResult = viewModel.competitionResult.observeAsState()
-
-    LaunchedEffect(Unit) {
-        viewModel.getCompetitions()
-    }
-
-    when (val result = competitionResult.value) {
-        is NetworkResponse.Error -> Text(text = result.message)
-        is NetworkResponse.Loading -> CircularProgressIndicator()
-        is NetworkResponse.Success -> {
-            DropdownSelector(
-                title = "Sélectionnez une compétition",
-                items = result.data,
-                selectedItem = selectedCompetition,
-                labelExtractor = { it.name.toString() }
-            )
-        }
-        null -> {}
-    }
-}
-//todo move translators to another file
-fun CompetitionModelItem.toCompetition(): Competition? {
-    try {
-        return Competition(
-            id = this.id,
-            name = this.name,
-            ageMin = this.age_min,
-            ageMax = this.age_max,
-            gender = this.gender.firstOrNull() ?: 'U',
-            hasTry = this.has_retry == 1,
-            status = this.status,
-        )
-    }catch (e: Exception){
-        println("ERROR: "+ e.message)
-    }
-    return null
-}
-
-fun CoursesModelItem.toCourse(): Course? {
-    try {
-        return Course(
-            id = this.id,
-            name = this.name,
-            maxDuration = this.max_duration,
-            position = this.position,
-            isOver = this.is_over,
-            competitionId = this.competition_id
-        )
-    }catch (e: Exception){
-        println("ERROR: "+ e.message)
-    }
-    return null
-}
-
-
-//todo remove old code
-
-/*
-@Composable
-fun selectCourse(viewModel: CoursesViewModel, compId: Int?, bdd: AppDatabase, comp: CompetitionModelItem?) {
-
-    val coursesResult = viewModel.coursesResult.observeAsState()
-
-//    LaunchedEffect(compId) {
-//        compId?.let {
-//            viewModel.getCoursesByCompetitionId(it)
-//        }
-//    }
-
-    when (val result = coursesResult.value) {
-        is NetworkResponse.Error -> Text(text = result.message)
-        is NetworkResponse.Loading -> CircularProgressIndicator()
-        is NetworkResponse.Success -> {
-
-            val courses = result.data.mapNotNull { it.toCourse() }
-//            LaunchedEffect(courses) {
-//                withContext(Dispatchers.IO) {
-//                    try {
-//                        bdd.courseDao().insertCourses(courses)
-//
-//                    }catch (e: Exception){
-//                        println("Error:" + e.message)
-//                    }
-//                }
-//            }
-        }
-        null -> {}
-    }
-}
-
-@Composable
-fun selectCompetitor(viewModel: CompetitorsViewModel, compId: Int?, bdd: AppDatabase){
-    val competitorResult = viewModel.competitorResult.observeAsState()
-//    LaunchedEffect(compId) {
-//        compId?.let {
-//            viewModel.getCompetitorsByCompetitionId(it)
-//        }
-//    }
-
-    when (val result = competitorResult.value) {
-        is NetworkResponse.Error -> Text(text = result.message)
-        is NetworkResponse.Loading -> CircularProgressIndicator()
-        is NetworkResponse.Success -> {
-        }
-        null -> {}
-    }
-}
-
-
-
-/*
-@Composable
-fun selectParams(competitionViewModel: CompetitionsViewModel,  coursesViewModel: CoursesViewModel){
-    var selectedCompetition = remember { mutableStateOf<CompetitionModelItem?>(null)}
-    var selectedCourse = remember { mutableStateOf<CoursesModelItem?>(null)}
-    selectCompetition(competitionViewModel, selectedCompetition)
-    selectCourse(coursesViewModel, selectedCompetition.value?.id, selectedCourse)
-}
-
-
-@Composable
-fun selectCompetition(viewModel: CompetitionsViewModel, selectedCompetition: MutableState<CompetitionModelItem?>){
-
-
-    var expanded by remember { mutableStateOf(false) }
-    var selectedOption by remember { mutableStateOf("selectionnez une competition") }
-    val competitionResult = viewModel.competitionResult.observeAsState()
-    LaunchedEffect(Unit) {
-        viewModel.getCompetitions()
-    }
-
-    when (val result = competitionResult.value) {
-            is NetworkResponse.Error -> {
-                Text(text = result.message)
-            }
-
-            is NetworkResponse.Loading -> {
-                CircularProgressIndicator()
-            }
-
-            is NetworkResponse.Success -> {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text(
-                        text = selectedOption,
-                        modifier = Modifier
-                            .clickable { expanded = true }
-                            .padding(8.dp)
-                    )
-                    DropdownMenu(
-                        expanded = expanded,
-                        onDismissRequest = { expanded = false }) {
-                    result.data.forEach { comp ->
-                        DropdownMenuItem(text = {Text(comp.name.toString())}, onClick = {expanded = false; selectedOption = comp.name.toString(); selectedCompetition.value = comp})
-                    }
-                    }
-                }
-            }
-            null -> {}
-    }
-}
-
-@Composable
-fun selectCourse(viewModel: CoursesViewModel, comp: Int?, selectedCourse: MutableState<CoursesModelItem?>){
-    var expanded by remember { mutableStateOf(false) }
-    var selectedOption by remember { mutableStateOf("selectionnez une course") }
-    val competitionResult = viewModel.coursesResult.observeAsState()
-    LaunchedEffect(comp) {
-        comp?.let {
-            viewModel.getCoursesByCompetitionId(it)
-        };
-        selectedOption = "selectionnez une course"
-    }
-
-    when (val result = competitionResult.value) {
-        is NetworkResponse.Error -> {
-            Text(text = result.message)
-        }
-
-        is NetworkResponse.Loading -> {
-            CircularProgressIndicator()
-        }
-
-        is NetworkResponse.Success -> {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text(
-                    text = selectedOption,
-                    modifier = Modifier
-                        .clickable { expanded = true }
-                        .padding(8.dp)
-                )
-                DropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false }) {
-                    result.data.forEach { course ->
-                        DropdownMenuItem(text = {Text(course.name.toString())}, onClick = {expanded = false; selectedOption = course.name.toString(); selectedCourse.value = course})
-                    }
-                }
-            }
-        }
-        null -> {}
-    }
-
-
-}
-*/
-*/
