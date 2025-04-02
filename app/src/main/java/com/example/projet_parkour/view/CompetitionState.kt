@@ -285,7 +285,6 @@ class CompetitionState(coursesViewModel: CoursesViewModel, competitorsViewModel:
             is NetworkResponse.Error -> Text(text = result.message)
             is NetworkResponse.Loading -> CircularProgressIndicator()
             is NetworkResponse.Success -> {
-
                 competitors.value = result.data
             }
             null -> {}

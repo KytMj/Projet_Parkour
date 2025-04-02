@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -153,12 +154,13 @@ fun ObstaclesInParkourPage(
     ) {
         Text(text = "Obstacles de la course",
             fontSize = 20.sp,
-            modifier = Modifier.padding(top = 5.dp, bottom = 15.dp),
+            modifier = Modifier.padding(top = 5.dp, bottom = 5.dp),
             fontWeight = FontWeight.Bold)
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .padding(10.dp)
+                .fillMaxHeight(0.6f)
                 .fillMaxWidth()
                 .clip(shape = RoundedCornerShape(20.dp))
                 .background(MaterialTheme.colorScheme.secondary)

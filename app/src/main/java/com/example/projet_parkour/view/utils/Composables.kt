@@ -139,7 +139,7 @@ fun DropdownMenuComposable(
     else
         Icons.Filled.KeyboardArrowDown
 
-    Column(Modifier.padding(20.dp)) {
+    Column(Modifier.padding(10.dp)) {
         // Create an Outlined Text Field
         // with icon and not expanded
         OutlinedTextField(

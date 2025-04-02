@@ -171,7 +171,7 @@ class ObstaclesViewModel : ViewModel() {
     fun AddToListRegisteredObstacles(registeredObstaclesList: CourseObstacleModel){
         when(val result = obstaclesByCourseResult.value){
             is NetworkResponse.Success -> {
-                registeredObstaclesList.addAll(result.data)
+                registeredObstaclesList.addAll(result.data.second)
             }
             null -> {}
             is NetworkResponse.Error -> {}
