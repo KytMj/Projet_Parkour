@@ -13,8 +13,10 @@ import com.example.projet_parkour.model.CompetitionModel
 import com.example.projet_parkour.model.CourseObstacleModel
 import com.example.projet_parkour.model.CreationCompetitionModelItem
 import com.example.projet_parkour.model.CreationObstacleModelItem
+import com.example.projet_parkour.model.MessageModel
 import com.example.projet_parkour.model.ObstacleModel
 import com.example.projet_parkour.model.ObstacleModelItem
+import com.example.projet_parkour.model.PerformanceCreateModelItem
 import com.example.projet_parkour.model.PerformanceModel
 import kotlinx.coroutines.launch
 
@@ -28,6 +30,9 @@ class PerformancesViewModel : ViewModel() {
 
     private val _performancesByCompetitorIdResult = MutableLiveData<NetworkResponse<PerformanceModel>>()
     val performancesByCompetitorIdResult: LiveData<NetworkResponse<PerformanceModel>> = _performancesByCompetitorIdResult
+
+    private val _createPerformanceResult = MutableLiveData<NetworkResponse<MessageModel>>()
+    val createPerformanceResult: LiveData<NetworkResponse<MessageModel>> = _createPerformanceResult
 
     fun getPerformances() {
         _performancesResult.value = NetworkResponse.Loading
@@ -90,6 +95,29 @@ class PerformancesViewModel : ViewModel() {
                 }
             } catch (ex: Exception) {
                 _performancesByCompetitorIdResult.value =
+                    NetworkResponse.Error("Les données n'ont pas réussi à être chargées. \n" + ex.toString() + "\nmessage :" + ex.message)
+            }
+        }
+    }
+
+    fun createPerformance(performance : PerformanceCreateModelItem) {
+        viewModelScope.launch {
+            try {
+                val response = api.createPerformance(performance)
+                if (response.isSuccessful) {
+                    response.body()?.let {
+                        _createPerformanceResult.value = NetworkResponse.Success(it)
+                    }
+                } else {
+                    _createPerformanceResult.value = NetworkResponse.Error(
+                        "" +
+                                "Les données n'ont pas réussi à être chargées. (error " + response.code()
+                            .toString() + ")" +
+                                " " + response.errorBody().toString()
+                    )
+                }
+            } catch (ex: Exception) {
+                _createPerformanceResult.value =
                     NetworkResponse.Error("Les données n'ont pas réussi à être chargées. \n" + ex.toString() + "\nmessage :" + ex.message)
             }
         }

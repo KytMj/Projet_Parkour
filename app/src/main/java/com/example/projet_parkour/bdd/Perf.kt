@@ -7,5 +7,6 @@ data class Perf (
     val courseId : Int,
     val competitorId : Int,
     val obstacleId : Int,
+    val has_fell : Int,
     val time : Int
 )

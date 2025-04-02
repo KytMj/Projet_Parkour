@@ -1,6 +1,8 @@
 package com.example.projet_parkour.view
 
 import android.os.SystemClock
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -42,6 +44,8 @@ import com.example.projet_parkour.model.Perfs
 import com.example.projet_parkour.viewmodel.CompetitorsViewModel
 import com.example.projet_parkour.viewmodel.CoursesViewModel
 import com.example.projet_parkour.viewmodel.ObstaclesViewModel
+import com.example.projet_parkour.viewmodel.PerformanceObstaclesViewModel
+import com.example.projet_parkour.viewmodel.PerformancesViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -49,13 +53,16 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.time.Duration.Companion.milliseconds
 
-class CompetitionState(coursesViewModel: CoursesViewModel, competitorsViewModel: CompetitorsViewModel, obstaclesViewModel: ObstaclesViewModel) {
+class CompetitionState(coursesViewModel: CoursesViewModel, competitorsViewModel: CompetitorsViewModel,
+                       obstaclesViewModel: ObstaclesViewModel, performancesViewModel: PerformancesViewModel, performanceObstaclesViewModel: PerformanceObstaclesViewModel) {
     private val competition = mutableStateOf<CompetitionModelItem?>(null)
     private val courses = mutableStateOf<CoursesModel?>(null)
     private val obstacles = mutableStateOf<HashMap<Int, CourseObstacleModel>>(HashMap())
     private val competitors = mutableStateOf<CompetitorModel?>(null)
     private val coursesViewModel = coursesViewModel
     private val competitorsViewModel = competitorsViewModel
+    private val performancesViewModel = performancesViewModel
+    private val performanceObstaclesViewModel = performanceObstaclesViewModel
     private val obstacleViewModel = obstaclesViewModel
     private val compId = mutableStateOf<Int?>(null)
 
@@ -134,6 +141,7 @@ class CompetitionState(coursesViewModel: CoursesViewModel, competitorsViewModel:
                                     courseId = currentCourse.id,
                                     competitorId = currentCompetitor.id,
                                     obstacleId = currentObstacle.id,
+                                    has_fell = if(hasFallen) 1 else 0,
                                     time = elapsedTime.toInt()
                                 ))
                                 bdd.rememberDao().insertRemember(Remember(
@@ -187,14 +195,80 @@ class CompetitionState(coursesViewModel: CoursesViewModel, competitorsViewModel:
                 }
             }
             Text("Chrono: ${currTime.value.milliseconds}")
-            if (isOver)sendData()
+            //if (isOver) sendData()
         }
     }
-    @Composable
+
+    @Composable  //DON'T WORK
     fun sendData(){
         val bdd = AppDatabase.getInstance(LocalContext.current)
-        //todo envoyer a l'api les resultats
-        Text("Arbitrage enregistré avec succès")
+        val competitorsPerf = bdd.perfDao().getAllCompetitorsInPerf()
+        val competitors = ArrayList<Int>()
+
+        competitorsPerf.forEach{ element ->
+            competitors.add(element)
+        }
+
+        val coursesPerf = bdd.perfDao().getAllCoursesInPerf()
+        val courses = ArrayList<Int>()
+
+        coursesPerf.forEach{ element ->
+            courses.add(element)
+        }
+
+        for (courseId in courses){
+            for (competitorId in competitors){
+                var time = 0
+                for (perf in bdd.perfDao().getPerfByCompetitorIdAndCourseId(competitorId, courseId)){
+                    time += perf.time
+                }
+
+                val performance  = PerformanceCreateModelItem(
+                    competitor_id = competitorId,
+                    course_id = courseId,
+                    status = "over",
+                    total_time = time
+                )
+
+                performancesViewModel.createPerformance(performance)
+                when (val result = performancesViewModel.createPerformanceResult.value) {
+                    is NetworkResponse.Error -> Log.d("deboggage", result.message)
+                    is NetworkResponse.Loading -> {}
+                    is NetworkResponse.Success -> Log.d("deboggage", "Performance bien insérée")
+                    null -> {}
+                }
+
+                performancesViewModel.getPerformances()
+                when (val result = performancesViewModel.performancesResult.value) {
+                    is NetworkResponse.Error -> Log.d("deboggage", result.message)
+                    is NetworkResponse.Loading -> {}
+                    is NetworkResponse.Success -> Log.d("deboggage", "Performance bien insérée")
+                    null -> {}
+                }
+
+                val allPerformances = performancesViewModel.performancesResult.value as NetworkResponse.Success
+                val performanceId = allPerformances.data[allPerformances.data.size-1].id
+
+                for (perf in bdd.perfDao().getPerfByCompetitorIdAndCourseId(competitorId, courseId)){
+                    val performanceObstacles = PerformanceObstacleCreateModelItem(
+                        obstacle_id = perf.obstacleId,
+                        performance_id = performanceId,
+                        has_fell = perf.has_fell,
+                        to_verify = 0,
+                        time = perf.time
+                    )
+
+                    performanceObstaclesViewModel.createPerformanceObstacles(performanceObstacles)
+                }
+            }
+        }
+
+        when (val result = performanceObstaclesViewModel.createPerformanceObstaclesResult.value) {
+            is NetworkResponse.Error -> Log.d("deboggage", result.message)
+            is NetworkResponse.Loading -> {}
+            is NetworkResponse.Success -> Log.d("deboggage", "PerformanceObstacles bien insérée")
+            null -> {}
+        }
     }
 
 

@@ -15,7 +15,9 @@ import com.example.projet_parkour.model.CreationObstacleModelItem
 import com.example.projet_parkour.model.MessageModel
 import com.example.projet_parkour.model.ObstacleModel
 import com.example.projet_parkour.model.ObstacleModelItem
+import com.example.projet_parkour.model.PerformanceCreateModelItem
 import com.example.projet_parkour.model.PerformanceModel
+import com.example.projet_parkour.model.PerformanceObstacleCreateModelItem
 import com.example.projet_parkour.model.PerformanceObstacleModel
 import retrofit2.Call
 import retrofit2.Response
@@ -102,6 +104,9 @@ interface API {
     @GET("/api/performances/{id}/details")
     suspend fun getPerformanceObstaclesByPerformanceId(@Path("id") id : Int) : Response<PerformanceObstacleModel>
 
+    @POST("/api/performance_obstacles")
+    suspend fun createPerformanceObstacles(@Body performanceObstacles : PerformanceObstacleCreateModelItem) : Response<MessageModel>
+
 
     //PERFORMANCES
     @GET("/api/competitors/{id}/performances")
@@ -112,4 +117,7 @@ interface API {
 
     @GET("/api/performances/{id}")
     suspend fun getPerformancesById(@Path("id") id : Int) : Response<PerformanceModel>
+
+    @POST("/api/performances")
+    suspend fun createPerformance(@Body performance : PerformanceCreateModelItem) : Response<MessageModel>
 }

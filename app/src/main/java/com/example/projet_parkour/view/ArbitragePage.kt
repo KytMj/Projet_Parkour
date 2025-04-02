@@ -22,14 +22,17 @@ import com.example.projet_parkour.model.CoursesModelItem
 import com.example.projet_parkour.viewmodel.CompetitorsViewModel
 import com.example.projet_parkour.viewmodel.CoursesViewModel
 import com.example.projet_parkour.viewmodel.ObstaclesViewModel
+import com.example.projet_parkour.viewmodel.PerformanceObstaclesViewModel
+import com.example.projet_parkour.viewmodel.PerformancesViewModel
 
 
 @Composable
 fun ArbitragePage(competitionViewModel: CompetitionsViewModel, coursesViewModel: CoursesViewModel,
-                  competitorsViewModel: CompetitorsViewModel, obstaclesViewModel: ObstaclesViewModel, competitionId : Int ) {
+                  competitorsViewModel: CompetitorsViewModel, obstaclesViewModel: ObstaclesViewModel, competitionId : Int,
+                  performancesViewModel: PerformancesViewModel, performanceObstaclesViewModel: PerformanceObstaclesViewModel){
     val selectedCompetition = remember { mutableStateOf<CompetitionModelItem?>(null) }
     selectCompetition(competitionViewModel, selectedCompetition, competitionId)
-    val state = remember { CompetitionState(coursesViewModel, competitorsViewModel, obstaclesViewModel) }
+    val state = remember { CompetitionState(coursesViewModel, competitorsViewModel, obstaclesViewModel, performancesViewModel, performanceObstaclesViewModel) }
     if (selectedCompetition.value != null) state.init(selectedCompetition.value!!)
 }
 
