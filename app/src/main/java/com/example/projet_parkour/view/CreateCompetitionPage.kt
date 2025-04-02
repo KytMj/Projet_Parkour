@@ -145,7 +145,12 @@ fun CreateCompetitionPage(
         Button(onClick = {
             if(isValidName && isValidMiniAge && isValidMaxAge){
                 val response = viewModel.checkAndAddCompetition(selectedOptionGender, checkedHasRetry, context)
-                if(response) navController.navigate("competitions_page")
+                if(response) {
+                    viewModel.nameCompetition.postValue("")
+                    viewModel.ageMiniCompet.postValue("")
+                    viewModel.ageMaxiCompet.postValue("")
+                    navController.navigate("competitions_page")
+                }
             }
             else{
                 Toast.makeText(context, "Des champs ne sont pas valides", Toast.LENGTH_LONG).show()

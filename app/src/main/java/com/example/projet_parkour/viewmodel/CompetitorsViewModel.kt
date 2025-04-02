@@ -220,6 +220,7 @@ class CompetitorsViewModel : ViewModel() {
         );
 
         createCompetitor(competitor);
+        val resultData : MutableLiveData<CompetitorModelItem> = MutableLiveData()
 
         when (val result = createCompetitorResult.value) {
             is NetworkResponse.Error -> {
@@ -228,23 +229,29 @@ class CompetitorsViewModel : ViewModel() {
             }
             is NetworkResponse.Loading -> {}
             is NetworkResponse.Success -> {
+                resultData.value = result.data
                 Toast.makeText(context, "Participant ajouté à la base", Toast.LENGTH_LONG).show()
-
-                val age = ChronoUnit.YEARS.between(LocalDate.parse(result.data.born_at), LocalDate.now())
-                if((age < ageMin || age > ageMax) || result.data.gender != genderCompet){
-                    var error = ""
-                    if (result.data.gender != genderCompet) error += "Ce participant n'est pas du genre de la compétition\n"
-                    if (age < ageMin || age > ageMax) error += "Ce participant n'a pas le bon âge pour cette compétition\n"
-
-                    Toast.makeText(context, error, Toast.LENGTH_LONG).show()
-                    deleteCompetitor(CompetitorIdModelItem(result.data.id))
-                    return false
-                }
-
-                addCompetitorCompetition(CompetitorIdModelItem(result.data.id), competitionId)
             }
             null -> {}
         }
+
+        if (resultData.value != null){
+            val age = ChronoUnit.YEARS.between(LocalDate.parse(resultData.value?.born_at), LocalDate.now())
+            if((age < ageMin || age > ageMax) || resultData.value?.gender != genderCompet){
+                var error = ""
+                if (resultData.value?.gender != genderCompet) error += "Ce participant n'est pas du genre de la compétition\n"
+                if (age < ageMin || age > ageMax) error += "Ce participant n'a pas le bon âge pour cette compétition\n"
+
+                Toast.makeText(context, error, Toast.LENGTH_LONG).show()
+                resultData.value?.id?.let { CompetitorIdModelItem(it) }
+                    ?.let { deleteCompetitor(it) }
+                return false
+            }
+
+            resultData.value?.id?.let { CompetitorIdModelItem(it) }
+                ?.let { addCompetitorCompetition(it, competitionId) }
+        }
+
 
         when (val result = addCompetitorCompetitionResult.value) {
             is NetworkResponse.Error -> {

@@ -19,6 +19,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -44,6 +47,9 @@ fun CreateCoursePage(
     val nameState by viewModel.nameCourse.observeAsState() ;
     val maxDurationState by viewModel.maxDurationCourse.observeAsState() ;
 
+    var isValidName by remember { mutableStateOf(false) }
+    var isValidDuration by remember { mutableStateOf(false) }
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -54,45 +60,45 @@ fun CreateCoursePage(
                 shape = RoundedCornerShape(10.dp)
             ).padding(10.dp)
     ) {
+        //NAME
         OutlinedTextField(
             value = nameState ?: "",
             label = { Text("Nom du parkour", color = Color.Black) },
-            onValueChange = { viewModel.nameCourse.postValue(it) },
+            onValueChange = {
+                viewModel.nameCourse.postValue(it)
+                isValidName = it.isNotEmpty() && viewModel.isValidName(it)
+            },
             modifier = Modifier.fillMaxWidth()
         )
+        if (!isValidName){
+            Text(text = "Champ invalide", color = Color.Red)
+        }
         Spacer(modifier = Modifier.size(4.dp))
 
+        //DURATION
         OutlinedTextField(
             value = maxDurationState ?: "",
             label = { Text("Durée maximum pour ce parkour", color=Color.Black) },
-            onValueChange = { viewModel.maxDurationCourse.postValue(it) },
+            onValueChange = {
+                viewModel.maxDurationCourse.postValue(it)
+                isValidDuration = it.isNotEmpty() && viewModel.isValidDuration(it)
+            },
             modifier = Modifier.fillMaxWidth()
         )
+        if (!isValidDuration){
+            Text(text = "Champ invalide", color = Color.Red)
+        }
         Spacer(modifier = Modifier.size(4.dp))
 
         Button(onClick = {
-           val course = CreationCourseModelItem(
-               name = nameState.toString(),
-               max_duration = maxDurationState?.toInt() ?: 0,
-               competition_id = competitionId
-           );
-
-            viewModel.createCourse(course);
+            val result = viewModel.checkAndAddCourse(context, competitionId)
+            if (result) {
+                viewModel.nameCourse.postValue("")
+                viewModel.maxDurationCourse.postValue("")
+                navController.navigate("courses_competitors_page/${competitionId}")
+            }
         }) {
-            Text(text = "Enregistrer")
-        }
-        when (val result = createCourseResult.value) {
-            is NetworkResponse.Error -> {
-                Text(text = result.message)
-            }
-
-            is NetworkResponse.Loading -> {
-                CircularProgressIndicator()
-            }
-
-            is NetworkResponse.Success -> navController.navigate("competitions_page")
-            null -> {}
+            Text(text = "Enregistrer et ajouter la course à la comptition")
         }
     }
-
 }

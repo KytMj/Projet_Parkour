@@ -90,4 +90,6 @@ class ObstaclesViewModel : ViewModel() {
             }
         }
     }
+
+
 }

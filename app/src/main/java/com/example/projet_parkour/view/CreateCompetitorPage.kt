@@ -156,7 +156,15 @@ fun CreateCompetitorPage(
             Button(onClick = {
                 if(isValidLastName && isValidFirstName && isValidEmail && isValidPhone){
                     val response = viewModel.checkAndAddCompetitorToDB(selectedOptionGender, context, mDate, competitionId)
-                    if(response) navController.navigate("inscription_competitors_page/${competitionId}:${ageMin},${ageMax},${gender}")
+                    if(response) {
+                        viewModel.lastName.postValue("")
+                        viewModel.firstName.postValue("")
+                        viewModel.email.postValue("")
+                        viewModel.phone.postValue("")
+                        viewModel.bornAt.postValue("")
+                        mDate.value = ""
+                        navController.navigate("inscription_competitors_page/${competitionId}:${ageMin},${ageMax},${gender}")
+                    }
                 }
                 else{
                     Toast.makeText(context, "Des champs ne sont pas valides", Toast.LENGTH_LONG).show()
@@ -168,7 +176,15 @@ fun CreateCompetitorPage(
                 if(isValidLastName && isValidFirstName && isValidEmail && isValidPhone){
                     val response = viewModel.checkAndAddCompetitorToCompetition(selectedOptionGender, context, mDate,
                         competitionId, ageMin, ageMax, gender)
-                    if(response) navController.navigate("inscription_competitors_page/${competitionId}:${ageMin},${ageMax},${gender}")
+                    if(response) {
+                        viewModel.lastName.postValue("")
+                        viewModel.firstName.postValue("")
+                        viewModel.email.postValue("")
+                        viewModel.phone.postValue("")
+                        viewModel.bornAt.postValue("")
+                        mDate.value = ""
+                        navController.navigate("inscription_competitors_page/${competitionId}:${ageMin},${ageMax},${gender}")
+                    }
                 }
                 else{
                     Toast.makeText(context, "Des champs ne sont pas valides", Toast.LENGTH_LONG).show()

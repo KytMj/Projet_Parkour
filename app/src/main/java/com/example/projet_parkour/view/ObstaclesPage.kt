@@ -98,8 +98,7 @@ fun AvailableObstaclesPage(
             }
 
             is NetworkResponse.Success -> {
-                val data = result.data //TOUS LES OBSTACLES
-                    //enlever ceux déjà enregistré... pas de vérif non plus
+                val data = result.data
                 val removeObstacles = ObstacleModel()
 
                 for(obstacle in obstaclesList){
