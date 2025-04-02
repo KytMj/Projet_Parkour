@@ -87,7 +87,7 @@ fun InscriptionCompetitorsPage(
                         shape = RoundedCornerShape(10.dp)
                     ).padding(10.dp)
             ) {
-                AddToListRegisteredCompetitors(viewModel, registeredCompetitorsList)
+                viewModel.AddToListRegisteredCompetitors(registeredCompetitorsList)
                 PotentialsCompetitorsPage(
                     modifier,
                     viewModel,
@@ -102,11 +102,10 @@ fun InscriptionCompetitorsPage(
                         selectedText.value.split(".").get(0).substring(3).toInt()
                 }
                 Button(onClick = {
-                    val result = RegisterCompetitorOnClick(
+                    val result = viewModel.RegisterCompetitorOnClick(
                         idAddCompetitor.intValue,
                         competitionId,
                         context,
-                        viewModel,
                         addCompetitorResult
                     )
                     if (result) navController.navigate("inscription_competitors_page/${competitionId}:${ageMin},${ageMax},${gender}")
@@ -242,40 +241,5 @@ fun RegisteredCompetitorsPage(
                 null -> {}
             }
         }
-    }
-}
-
-private fun RegisterCompetitorOnClick (
-    idAddCompetitor: Int,
-    competitionId: Int,
-    context: Context,
-    viewModel: CompetitorsViewModel,
-    addCompetitorResult: State<NetworkResponse<MessageModel>?>
-): Boolean {
-    if(idAddCompetitor != -1) {
-        viewModel.addCompetitorCompetition(CompetitorIdModelItem(idAddCompetitor), competitionId)
-        if (addCompetitorResult.value is NetworkResponse.Error) {
-            val result = (addCompetitorResult.value as NetworkResponse.Error)
-            Toast.makeText(context, result.message, Toast.LENGTH_LONG).show()
-            return false
-        }
-        return true
-    }
-    else{
-        Toast.makeText(context, "Vous n'avez pas sélectionné de participants à inscrire", Toast.LENGTH_LONG).show()
-        return false
-    }
-}
-
-private fun AddToListRegisteredCompetitors(viewModel: CompetitorsViewModel, registeredCompetitorsList: CompetitorModel){
-    val competitorByCompetitionResult = viewModel.competitorByCompetitionResult
-
-    when(val result = competitorByCompetitionResult.value){
-        is NetworkResponse.Success -> {
-            registeredCompetitorsList.addAll(result.data)
-        }
-        null -> {}
-        is NetworkResponse.Error -> {}
-        is NetworkResponse.Loading -> {}
     }
 }

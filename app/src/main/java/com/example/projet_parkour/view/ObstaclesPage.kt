@@ -2,6 +2,7 @@ package com.example.projet_parkour.view
 
 import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,6 +20,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -32,8 +34,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.projet_parkour.api.NetworkResponse
+import com.example.projet_parkour.model.CompetitorIdModelItem
 import com.example.projet_parkour.model.CompetitorModel
 import com.example.projet_parkour.model.CourseObstacleModel
+import com.example.projet_parkour.model.MessageModel
 import com.example.projet_parkour.model.ObstacleModel
 import com.example.projet_parkour.view.utils.DropdownMenuComposable
 import com.example.projet_parkour.view.utils.FloatingButtonAdd
@@ -50,8 +54,13 @@ fun ObstaclesPage(
     isEnableConstructMode: MutableState<Boolean>,
     ) {
     val selectedText = remember { mutableStateOf("") }
-    var idAddCompetitor = remember { mutableIntStateOf(-1) }
+    var idAddObstacle = remember { mutableIntStateOf(-1) }
     val obstaclesList = CourseObstacleModel()
+
+    LaunchedEffect(Unit) {
+        viewModel.getObstacles()
+        viewModel.getObstaclesByCourseId(courseId)
+    }
 
     Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)){
         Column {
@@ -79,10 +88,6 @@ fun AvailableObstaclesPage(
     obstaclesList: CourseObstacleModel
 ) {
     val competitorResult = viewModel.obstaclesResult.observeAsState()
-
-    LaunchedEffect(Unit) {
-        viewModel.getObstacles()
-    }
 
     Column(
         modifier = modifier.fillMaxWidth().fillMaxHeight(),
@@ -112,7 +117,7 @@ fun AvailableObstaclesPage(
                 val obstacles = ArrayList<String>()
 
                 data.forEach { element ->
-                    obstacles.add(element.name)
+                    obstacles.add("ID"+element.id+". "+element.name)
                 }
 
                 DropdownMenuComposable(obstacles, "Obstacles disponibles", selectedText)
@@ -131,12 +136,8 @@ fun ObstaclesInParkourPage(
 ) {
     val obstacleResult = viewModel.obstaclesByCourseResult.observeAsState()
 
-    LaunchedEffect(Unit) {
-        viewModel.getObstaclesByCourseId(courseId)
-    }
-
     Column(
-        modifier = modifier.fillMaxWidth().fillMaxHeight(),
+        modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(text = "Obstacles de la course",
@@ -146,7 +147,6 @@ fun ObstaclesInParkourPage(
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
-                .fillMaxHeight()
                 .padding(10.dp)
                 .fillMaxWidth()
                 .clip(shape = RoundedCornerShape(20.dp))

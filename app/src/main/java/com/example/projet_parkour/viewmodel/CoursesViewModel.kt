@@ -105,7 +105,7 @@ class CoursesViewModel : ViewModel() {
     }
 
     fun isValidName(text: String): Boolean {
-        return text.matches(Regex("^[A-Za-z\\s'-]{1,50}\$"))
+        return text.matches(Regex("^[A-Za-zéèëêàç\\s'-]{1,50}\$"))
     }
 
     fun isValidDuration(text: String): Boolean {

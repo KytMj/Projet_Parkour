@@ -6,6 +6,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -282,5 +283,37 @@ class CompetitorsViewModel : ViewModel() {
 
     fun isValidDate(text: String): Boolean {
         return text.matches(Regex("^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])\$"))
+    }
+
+    fun RegisterCompetitorOnClick (
+        idAddCompetitor: Int,
+        competitionId: Int,
+        context: Context,
+        addCompetitorResult: State<NetworkResponse<MessageModel>?>
+    ): Boolean {
+        if(idAddCompetitor != -1) {
+            addCompetitorCompetition(CompetitorIdModelItem(idAddCompetitor), competitionId)
+            if (addCompetitorResult.value is NetworkResponse.Error) {
+                val result = (addCompetitorResult.value as NetworkResponse.Error)
+                Toast.makeText(context, result.message, Toast.LENGTH_LONG).show()
+                return false
+            }
+            return true
+        }
+        else{
+            Toast.makeText(context, "Vous n'avez pas sélectionné de participants à inscrire", Toast.LENGTH_LONG).show()
+            return false
+        }
+    }
+
+    fun AddToListRegisteredCompetitors(registeredCompetitorsList: CompetitorModel){
+        when(val result = competitorByCompetitionResult.value){
+            is NetworkResponse.Success -> {
+                registeredCompetitorsList.addAll(result.data)
+            }
+            null -> {}
+            is NetworkResponse.Error -> {}
+            is NetworkResponse.Loading -> {}
+        }
     }
 }
