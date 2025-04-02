@@ -71,7 +71,6 @@ class MainActivity : ComponentActivity() {
             val isEnableConstructMode = remember { mutableStateOf(false) }
             val backStackEntry by navController.currentBackStackEntryAsState();
             val context = LocalContext.current
-
             Projet_ParkourTheme {
                 Box(modifier = Modifier.padding(top = 40.dp, bottom = 40.dp).fillMaxSize().background(MaterialTheme.colorScheme.background)) {
                     Column{

@@ -89,6 +89,8 @@ class CompetitionState(coursesViewModel: CoursesViewModel, competitorsViewModel:
             var courseIndex by remember { mutableStateOf(0) }
             var competitorIndex by remember { mutableStateOf(0) }
             var obstacleIndex by remember { mutableStateOf(0) }
+            var hasFallen by remember {mutableStateOf(false)}
+            var isOver by remember{mutableStateOf(false)}
 
 
             LaunchedEffect(competition.value) {
@@ -116,7 +118,7 @@ class CompetitionState(coursesViewModel: CoursesViewModel, competitorsViewModel:
                 val currentCourse = allCourses[courseIndex]
                 val currentCompetitor = allCompetitors[competitorIndex]
                 val currentObstacleList = allObstacles[currentCourse].orEmpty()
-
+                println("debugage: obstacle ${currentObstacleList.size}")
                 if (currentObstacleList.isNotEmpty()) {
                     val currentObstacle = currentObstacleList[obstacleIndex]
 
@@ -147,11 +149,15 @@ class CompetitionState(coursesViewModel: CoursesViewModel, competitorsViewModel:
                                 obstacleIndex = 0
                                 if (competitorIndex + 1 < allCompetitors.size) {
                                     competitorIndex++
+                                    hasFallen = false
                                     isRunning = false
                                     currTime.value = lastObstacleTime
                                 } else {
                                     competitorIndex = 0
                                     if (courseIndex + 1 < allCourses.size) courseIndex++
+                                    else{
+                                        isOver = true
+                                    }
                                 }
                             }
                         } else {
@@ -162,13 +168,15 @@ class CompetitionState(coursesViewModel: CoursesViewModel, competitorsViewModel:
 
                     if (isRunning){
                         Button(onClick = {
-                            if (competition.value?.has_retry == 1){
+                            if (competition.value?.has_retry == 1 && !hasFallen){
                                 isRunning = false
                                 currTime.value = lastObstacleTime
+                                hasFallen = true
                             }else{
                                 isRunning = false
                                 if (competitorIndex + 1 < allCompetitors.size){
                                     competitorIndex++
+                                    hasFallen = false
                                 }else
                                     if (courseIndex + 1 < allCourses.size) {
                                         courseIndex++
@@ -179,7 +187,14 @@ class CompetitionState(coursesViewModel: CoursesViewModel, competitorsViewModel:
                 }
             }
             Text("Chrono: ${currTime.value.milliseconds}")
+            if (isOver)sendData()
         }
+    }
+    @Composable
+    fun sendData(){
+        val bdd = AppDatabase.getInstance(LocalContext.current)
+        //todo envoyer a l'api les resultats
+        Text("Arbitrage enregistré avec succès")
     }
 
 
