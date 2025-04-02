@@ -14,6 +14,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -67,7 +68,7 @@ fun CompetitionsPage(
                     items(result.data.size){ index ->
                         val data = result.data[index]
                         Card(
-                            colors = CardDefaults.cardColors(containerColor = Color(0xFF242F40)),
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary),
                             modifier = Modifier.padding(start = 10.dp, end = 10.dp, bottom = 20.dp).shadow(
                                 elevation = 10.dp,
                                 shape = RoundedCornerShape(8.dp)
@@ -104,19 +105,18 @@ fun ButtonDisplay(navController: NavController, data: CompetitionModelItem){
             onClick = {
                 navController.navigate("courses_competitors_page/${data.id}")
             }, colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFFCCA43B),
+                containerColor = MaterialTheme.colorScheme.tertiary,
                 contentColor = Color.Black),
             shape = RoundedCornerShape(15)
         ) {
             Text("Courses & Concurrents")
         }
         Button(
-
             modifier = Modifier.fillMaxWidth(),
             onClick = {
                 navController.navigate("inscription_competitors_page/${data.id}:${data.age_min},${data.age_max},${data.gender}")
             }, colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFFCCA43B),
+                containerColor = MaterialTheme.colorScheme.tertiary,
                 contentColor = Color.Black),
             shape = RoundedCornerShape(15)
         ) {

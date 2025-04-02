@@ -5,10 +5,12 @@ import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -23,7 +25,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.projet_parkour.api.NetworkResponse
 import com.example.projet_parkour.model.CompetitorModel
@@ -79,7 +85,7 @@ fun AvailableObstaclesPage(
     }
 
     Column(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth().fillMaxHeight(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         when(val result = competitorResult.value){
@@ -92,7 +98,8 @@ fun AvailableObstaclesPage(
             }
 
             is NetworkResponse.Success -> {
-                val data = result.data
+                val data = result.data //TOUS LES OBSTACLES
+                    //enlever ceux déjà enregistré... pas de vérif non plus
                 val removeObstacles = ObstacleModel()
 
                 for(obstacle in obstaclesList){
@@ -130,35 +137,49 @@ fun ObstaclesInParkourPage(
     }
 
     Column(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth().fillMaxHeight(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(modifier = Modifier.padding(bottom = 10.dp), text = "Obstacles de la course")
-        when(val result = obstacleResult.value){
-            is NetworkResponse.Error -> {
-                Text(text = result.message)
-            }
+        Text(text = "Obstacles de la course",
+            fontSize = 20.sp,
+            modifier = Modifier.padding(top = 5.dp, bottom = 15.dp),
+            fontWeight = FontWeight.Bold)
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .fillMaxHeight()
+                .padding(10.dp)
+                .fillMaxWidth()
+                .clip(shape = RoundedCornerShape(20.dp))
+                .background(MaterialTheme.colorScheme.secondary)
+                .padding(top=20.dp,start = 10.dp, end = 10.dp, bottom = 20.dp)
+        ) {
+            when (val result = obstacleResult.value) {
+                is NetworkResponse.Error -> {
+                    Text(text = result.message)
+                }
 
-            is NetworkResponse.Loading -> {
-                CircularProgressIndicator()
-            }
-
-            is NetworkResponse.Success -> {
-                LazyColumn {
-                    items(result.data.size){ index ->
-                        val data = result.data[index]
-                        Card(
-                            colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.primaryContainer
-                            ),
-                            modifier = Modifier.fillMaxWidth().padding(start = 10.dp, end = 10.dp, bottom = 5.dp),
-                        ) {
-                            Text(modifier = Modifier.padding(10.dp), text = data.obstacle_name)
+                is NetworkResponse.Loading -> {
+                    CircularProgressIndicator()
+                }
+                is NetworkResponse.Success -> {
+                    LazyColumn {
+                        items(result.data.size) { index ->
+                            val data = result.data[index]
+                            Card(
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.primary
+                                ),
+                                modifier = Modifier.fillMaxWidth()
+                                    .padding(start = 10.dp, end = 10.dp, bottom = 5.dp),
+                            ) {
+                                Text(modifier = Modifier.padding(10.dp), text = data.obstacle_name)
+                            }
                         }
                     }
                 }
+                null -> {}
             }
-            null -> {}
         }
     }
 }

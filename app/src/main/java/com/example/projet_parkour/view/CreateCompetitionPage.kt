@@ -2,6 +2,7 @@ package com.example.projet_parkour.view
 
 import android.content.Context
 import android.widget.Toast
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -9,9 +10,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
@@ -27,7 +28,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.projet_parkour.api.NetworkResponse
 import com.example.projet_parkour.viewmodel.CompetitionsViewModel
 
 
@@ -56,17 +56,21 @@ fun CreateCompetitionPage(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(16.dp).border(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.secondary,
+                shape = RoundedCornerShape(10.dp)
+            ).padding(10.dp)
     ) {
 
         //NOM COMPETITION
         OutlinedTextField(
             value = nameState ?: "",
-            label = { Text("Nom de la compétition") },
+            label = { Text("Nom de la compétition", color= Color.Black) },
             onValueChange = { input ->
                 viewModel.nameCompetition.postValue(input)
                 isValidName = input.isNotEmpty() && viewModel.isValidName(input)
-                            },
+            },
             modifier = Modifier.fillMaxWidth()
         )
         if (!isValidName){
@@ -77,8 +81,7 @@ fun CreateCompetitionPage(
         Row {
             Text(
                 text = "Genre des participants",
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(start = 8.dp)
+                style = MaterialTheme.typography.bodyMedium
             )
             radioOptionsGender.forEach { genreText ->
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -99,11 +102,11 @@ fun CreateCompetitionPage(
         //AGE MINIMUM
         OutlinedTextField(
             value = ageMiniState ?: "",
-            label = { Text("Âge minimum") },
             onValueChange = {
                 viewModel.ageMiniCompet.postValue(it)
                 isValidMiniAge = it.isNotEmpty() && viewModel.isValidMinAge(it)
                             },
+            label = { Text("Âge minimum", color= Color.Black) },
             modifier = Modifier.fillMaxWidth()
         )
         if (!isValidMiniAge){
@@ -114,11 +117,11 @@ fun CreateCompetitionPage(
         //AGE MAXIMUM
         OutlinedTextField(
             value = ageMaxiState ?: "",
-            label = { Text("Âge maximum") },
             onValueChange = {
                 viewModel.ageMaxiCompet.postValue(it)
                 isValidMaxAge = it.isNotEmpty() && viewModel.isValidMaxAge(it)
             },
+            label = { Text("Âge maximum", color= Color.Black) },
             modifier = Modifier.fillMaxWidth()
         )
         if (!isValidMaxAge){
@@ -129,8 +132,7 @@ fun CreateCompetitionPage(
         Row {
             Text(
                 text = "Plusieurs essais possibles ?",
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(start = 8.dp)
+                style = MaterialTheme.typography.bodyMedium
             )
             Checkbox(
                 checked = checkedHasRetry.value,

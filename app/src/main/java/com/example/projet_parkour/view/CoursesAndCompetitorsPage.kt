@@ -37,6 +37,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.projet_parkour.api.NetworkResponse
 import com.example.projet_parkour.view.utils.FloatingButtonAdd
@@ -59,7 +60,7 @@ fun DisplayCoursesCompetitors(
         Column(modifier = Modifier.fillMaxSize() .fillMaxHeight()) {
             Button(modifier = Modifier.padding(5.dp).fillMaxWidth(),
                 shape = RoundedCornerShape(15),
-                colors = ButtonDefaults.buttonColors(contentColor = Color.Black, containerColor = Color(0xFFCCA43B)),
+                colors = ButtonDefaults.buttonColors(contentColor = Color.Black, containerColor = MaterialTheme.colorScheme.tertiary),
                 onClick = {
                     currentPage = if (currentPage == "Courses") null else "Courses"
                 }
@@ -82,7 +83,7 @@ fun DisplayCoursesCompetitors(
 
             Button(modifier = Modifier.padding(5.dp).fillMaxWidth(),
                 shape = RoundedCornerShape(15),
-                colors = ButtonDefaults.buttonColors(contentColor = Color.Black, containerColor = Color(0xFFCCA43B)),
+                colors = ButtonDefaults.buttonColors(contentColor = Color.Black, containerColor = MaterialTheme.colorScheme.tertiary),
                 onClick = {
                     currentPage = if (currentPage == "Competitors") null else "Competitors" }
             ) {
@@ -110,7 +111,7 @@ fun DisplayCoursesCompetitors(
                 //TODO chrono
                 //navController.navigate("")
             },
-            containerColor = Color(0xFFCCA43B),
+            containerColor = MaterialTheme.colorScheme.secondary,
             contentColor = Color.Black,
             elevation = FloatingActionButtonDefaults.elevation()
         ) {
@@ -146,7 +147,7 @@ fun CoursesPage(
             .padding(10.dp)
             .fillMaxWidth()
             .clip(shape = RoundedCornerShape(20.dp))
-            .background(Color(0xFF242F40))
+            .background(MaterialTheme.colorScheme.secondary)
             .padding(top=20.dp,start = 10.dp, end = 10.dp, bottom = 20.dp)
     ) {
         when(val result = coursesResult.value){
@@ -161,8 +162,8 @@ fun CoursesPage(
                     items(result.data.size){ index ->
                         val data = result.data[index]
                         Card(
-                            colors = CardDefaults.cardColors(containerColor = Color(0xFF748cab)),
-                            modifier = Modifier.padding(top=20.dp,start = 10.dp, end = 10.dp, bottom = 20.dp),
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary),
+                            modifier = Modifier.padding(top=5.dp,start = 10.dp, end = 10.dp, bottom = 5.dp),
                             onClick = {
                                 /*if(!(data.is_over)){
                                     //TODO accès au chrono ?
@@ -176,7 +177,7 @@ fun CoursesPage(
                                         modifier = Modifier
                                             .padding(end = 10.dp)
                                             .align(Alignment.CenterVertically),
-                                        fontWeight = FontWeight.Bold
+                                        fontWeight = FontWeight.Bold,fontSize = 18.sp
                                     )
                                     Column {
                                         Text(
@@ -186,17 +187,17 @@ fun CoursesPage(
                                         Text("Durée maximum : " + data.max_duration)
                                         Text(
                                             text = if (data.is_over == 1) "Course terminée" else "Course pas terminée",
-                                            color = if (data.is_over == 1) Color.Green else Color.Red
+                                            color = if (data.is_over == 1) Color(0xFF8ac926) else Color(0xFFff595e)
                                         )
                                         Button(
                                             modifier = Modifier.fillMaxWidth(),
                                             onClick = {
                                                 navController.navigate("obstacles_page/${data.id}")
                                             }, colors = ButtonDefaults.buttonColors(
-                                                containerColor = Color(0xFFCCA43B),
+                                                containerColor = MaterialTheme.colorScheme.tertiary,
                                                 contentColor = Color.Black
                                             ),
-                                            shape = RoundedCornerShape(30)
+                                            shape = RoundedCornerShape(15)
                                         ) {
                                             Text("Obstacles")
                                         }
@@ -232,7 +233,7 @@ fun CompetitorsPage(
             .padding(10.dp)
             .fillMaxWidth()
             .clip(shape = RoundedCornerShape(20.dp))
-            .background(Color(0xFF242F40))
+            .background(MaterialTheme.colorScheme.secondary)
             .padding(top=20.dp,start = 10.dp, end = 10.dp, bottom = 20.dp)
     ) {
         when(val result = competitorByCompetitionResult.value){
@@ -249,22 +250,21 @@ fun CompetitorsPage(
                     items(result.data.size){ index ->
                         val data = result.data[index]
                         Card(
-                            colors = CardDefaults.cardColors(containerColor = Color(0xFF748cab)),
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary),
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(top=20.dp,start = 10.dp, end = 10.dp, bottom = 20.dp)
+                                .padding(top=5.dp,start = 10.dp, end = 10.dp, bottom = 5.dp)
                         ) {
                             Column (modifier = Modifier.padding(25.dp)){
-                                Text("Nom : " + data.last_name)
-                                Text("Prénom : " + data.first_name)
-                                Text("Genre du concurrent : " +
-                                        when(val gender = data.gender){
+                                Text("Nom : " + data.last_name,fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                                Text("Prénom : " + data.first_name,fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                                Text(when(val gender = data.gender){
                                             "H" -> "Homme"
                                             "F" -> "Femme"
                                             else -> {
                                                 "Pas de catégorie"
                                             }
-                                        }
+                                        },fontSize = 18.sp, fontWeight = FontWeight.Bold
                                 )
                                 Text("Date de naissance : " + data.born_at)
                                 Text("Email : " + data.email)
