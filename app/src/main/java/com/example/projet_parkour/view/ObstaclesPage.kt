@@ -163,8 +163,8 @@ fun ObstaclesInParkourPage(
                 }
                 is NetworkResponse.Success -> {
                     LazyColumn {
-                        items(result.data.size) { index ->
-                            val data = result.data[index]
+                        items(result.data.second.size) { index ->
+                            val data = result.data.second[index]
                             Card(
                                 colors = CardDefaults.cardColors(
                                     containerColor = MaterialTheme.colorScheme.primary
@@ -188,7 +188,7 @@ private fun AddToListRegisteredObstacles(viewModel: ObstaclesViewModel, register
 
     when(val result = competitorByCompetitionResult.value){
         is NetworkResponse.Success -> {
-            registeredObstaclesList.addAll(result.data)
+            registeredObstaclesList.addAll(result.data.second)
         }
         null -> {}
         is NetworkResponse.Error -> {}

@@ -38,7 +38,7 @@ import com.example.projet_parkour.model.PerformanceObstacleCreateModelItem
 import com.example.projet_parkour.model.Perfs
 import com.example.projet_parkour.viewmodel.CompetitorsViewModel
 import com.example.projet_parkour.viewmodel.CoursesViewModel
-import com.example.projet_parkour.viewmodel.CourseObstacleViewModel
+import com.example.projet_parkour.viewmodel.ObstaclesViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -46,14 +46,14 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.time.Duration.Companion.milliseconds
 
-class CompetitionState(coursesViewModel: CoursesViewModel, competitorsViewModel: CompetitorsViewModel, courseObstacleViewModel: CourseObstacleViewModel) {
+class CompetitionState(coursesViewModel: CoursesViewModel, competitorsViewModel: CompetitorsViewModel, obstaclesViewModel: ObstaclesViewModel) {
     private val competition = mutableStateOf<CompetitionModelItem?>(null)
     private val courses = mutableStateOf<CoursesModel?>(null)
     private val obstacles = mutableStateOf<HashMap<Int, CourseObstacleModel>>(HashMap())
     private val competitors = mutableStateOf<CompetitorModel?>(null)
     private val coursesViewModel = coursesViewModel
     private val competitorsViewModel = competitorsViewModel
-    private val obstacleViewModel = courseObstacleViewModel
+    private val obstacleViewModel = obstaclesViewModel
     private val compId = mutableStateOf<Int?>(null)
 
 
@@ -253,20 +253,19 @@ class CompetitionState(coursesViewModel: CoursesViewModel, competitorsViewModel:
     }
     @Composable
     fun initObstacles() {
-        val obstacleResult = obstacleViewModel.obstaclesResult.observeAsState()
+        val obstaclesByCourseResult = obstacleViewModel.obstaclesByCourseResult.observeAsState()
         LaunchedEffect(courses.value) {
             courses.value?.forEach { course ->
-                obstacleViewModel.getObstacleByCourseId(course.id)
+                obstacleViewModel.getObstaclesByCourseId(course.id)
             }
         }
 
-        when (val result = obstacleResult.value) {
+        when (val result = obstaclesByCourseResult.value) {
             is NetworkResponse.Error -> Text(text = result.message)
             is NetworkResponse.Loading -> CircularProgressIndicator()
             is NetworkResponse.Success -> {
                 result.data.let { obstaclesList ->
                     obstacles.value.set(result.data.first, result.data.second)
-
                 }
             }
             null -> {}

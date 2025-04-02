@@ -34,6 +34,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.projet_parkour.ui.theme.Projet_ParkourTheme
+import com.example.projet_parkour.view.ArbitragePage
 import com.example.projet_parkour.view.CompetitionsPage
 import com.example.projet_parkour.view.CreateCompetitionPage
 import com.example.projet_parkour.view.CreateCompetitorPage
@@ -155,7 +156,9 @@ class MainActivity : ComponentActivity() {
                                 )
                             }
 
-
+                            composable("chrono_page"){
+                                ArbitragePage(competitionsViewModel, coursesViewModel, competitorsViewModel, obstaclesViewModel)
+                            }
 
                             composable("create_competitions_page") {
                                 CreateCompetitionPage(

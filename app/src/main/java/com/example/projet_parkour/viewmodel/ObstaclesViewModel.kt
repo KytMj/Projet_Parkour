@@ -22,8 +22,8 @@ class ObstaclesViewModel : ViewModel() {
     private val _obstaclesResult = MutableLiveData<NetworkResponse<ObstacleModel>>()
     val obstaclesResult : LiveData<NetworkResponse<ObstacleModel>> = _obstaclesResult
 
-    private val _obstaclesByCourseResult = MutableLiveData<NetworkResponse<CourseObstacleModel>>()
-    val obstaclesByCourseResult : LiveData<NetworkResponse<CourseObstacleModel>> = _obstaclesByCourseResult
+    private val _obstaclesByCourseResult = MutableLiveData<NetworkResponse<Pair<Int, CourseObstacleModel>>>()
+    val obstaclesByCourseResult : LiveData<NetworkResponse<Pair<Int, CourseObstacleModel>>> = _obstaclesByCourseResult
 
     private val _createObstacleResult = MutableLiveData<NetworkResponse<ObstacleModelItem>>()
     val createObstacleResult : LiveData<NetworkResponse<ObstacleModelItem>> = _createObstacleResult
@@ -55,15 +55,18 @@ class ObstaclesViewModel : ViewModel() {
             try {
                 val response = api.getObstaclesByCourseId(courseId)
                 if (response.isSuccessful) {
-                    response.body()?.let {
-                        _obstaclesByCourseResult.value = NetworkResponse.Success(it)
+                    response.body()?.let { obstacleList ->
+                        val result = Pair(courseId, obstacleList)
+
+                        _obstaclesByCourseResult.value = NetworkResponse.Success(result)
+                    } ?: run {
+                        _obstaclesByCourseResult.value = NetworkResponse.Error("Réponse vide.")
                     }
                 } else {
                     _obstaclesByCourseResult.value = NetworkResponse.Error("Les données n'ont pas réussi à être chargées. (error)")
                 }
-            }
-            catch (ex : Exception){
-                _obstaclesByCourseResult.value = NetworkResponse.Error("Les données n'ont pas réussi à être chargées. \n"+ ex.toString() + "\nmessage :" + ex.message)
+            } catch (ex: Exception) {
+                _obstaclesByCourseResult.value = NetworkResponse.Error("Les données n'ont pas réussi à être chargées. \n${ex}\nmessage: ${ex.message}")
             }
         }
     }

@@ -21,12 +21,12 @@ import com.example.projet_parkour.model.CompetitionModelItem
 import com.example.projet_parkour.model.CoursesModelItem
 import com.example.projet_parkour.viewmodel.CompetitorsViewModel
 import com.example.projet_parkour.viewmodel.CoursesViewModel
-import com.example.projet_parkour.viewmodel.CourseObstacleViewModel
+import com.example.projet_parkour.viewmodel.ObstaclesViewModel
 
 @Composable
-fun ArbitragePage(competitionViewModel: CompetitionsViewModel, coursesViewModel: CoursesViewModel, competitorsViewModel: CompetitorsViewModel, courseObstacleViewModel: CourseObstacleViewModel){
+fun ArbitragePage(competitionViewModel: CompetitionsViewModel, coursesViewModel: CoursesViewModel, competitorsViewModel: CompetitorsViewModel, obstaclesViewModel: ObstaclesViewModel){
     Column {
-        selectParams(competitionViewModel, coursesViewModel, competitorsViewModel, courseObstacleViewModel)
+        selectParams(competitionViewModel, coursesViewModel, competitorsViewModel, obstaclesViewModel)
     }
 }
 
@@ -73,13 +73,13 @@ fun <T> DropdownSelector(
 
 
 @Composable
-fun selectParams(competitionViewModel: CompetitionsViewModel, coursesViewModel: CoursesViewModel, competitorsViewModel: CompetitorsViewModel, courseObstacleViewModel: CourseObstacleViewModel) {
+fun selectParams(competitionViewModel: CompetitionsViewModel, coursesViewModel: CoursesViewModel, competitorsViewModel: CompetitorsViewModel, obstaclesViewModel: ObstaclesViewModel) {
     val selectedCompetition = remember { mutableStateOf<CompetitionModelItem?>(null) }
     val bdd = AppDatabase.getInstance(LocalContext.current)
 
 
     selectCompetition(competitionViewModel, selectedCompetition, bdd)
-    val state = remember { CompetitionState(coursesViewModel, competitorsViewModel, courseObstacleViewModel) }
+    val state = remember { CompetitionState(coursesViewModel, competitorsViewModel, obstaclesViewModel) }
     if (selectedCompetition.value != null) state.init(selectedCompetition.value!!)
 
 
