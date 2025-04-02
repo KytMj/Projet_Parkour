@@ -28,6 +28,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.projet_parkour.ui.theme.Projet_ParkourTheme
 import com.example.projet_parkour.view.CompetitionsPage
+import com.example.projet_parkour.view.CourseLeaderboardPage
 import com.example.projet_parkour.view.CreateCompetitionPage
 import com.example.projet_parkour.view.CreateCompetitorPage
 import com.example.projet_parkour.view.CreateCoursePage
@@ -68,7 +69,7 @@ class MainActivity : ComponentActivity() {
                 Box(modifier = Modifier.padding(top = 40.dp, bottom = 40.dp).fillMaxSize().background(MaterialTheme.colorScheme.background)) {
                     Column{
                         Header(modifier = Modifier, navController, isEnableConstructMode)
-                        NavHost(navController = navController, startDestination = "competitions_page" +
+                        NavHost(navController = navController, startDestination = /*"competitions_page"*//*"leaderboard_page"*/ "courseleaderboard_page/2571"+
                                 "", builder = {
                             composable("competitions_page") {
                                 CompetitionsPage(
@@ -143,10 +144,28 @@ class MainActivity : ComponentActivity() {
                                     modifier = Modifier.padding(16.dp),
                                     performancesViewModel,
                                     performanceObstaclesViewModel,
+                                    competitorsViewModel,
                                     navController
                                 )
                             }
 
+                            composable("courseleaderboard_page/{courseId}", arguments = listOf(
+                                navArgument("courseId"){
+                                    type = NavType.IntType
+                                }
+                            )) { backStackEntry ->
+                                val courseId = backStackEntry.arguments?.getInt("courseId")
+                                if (courseId != null) {
+                                    CourseLeaderboardPage(
+                                        modifier = Modifier.padding(16.dp),
+                                        performancesViewModel,
+                                        performanceObstaclesViewModel,
+                                        competitorsViewModel,
+                                        navController,
+                                        courseId
+                                    )
+                                }
+                            }
 
                             composable("create_competitions_page") {
                                 CreateCompetitionPage(

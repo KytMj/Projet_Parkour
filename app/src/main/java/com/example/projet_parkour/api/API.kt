@@ -50,7 +50,7 @@ interface API {
     suspend fun getCompetitors() : Response<CompetitorModel>
 
     @GET("/api/competitors/{id}")
-    suspend fun getCompetitorsById(@Path("id") id : Int) : Response<CompetitorModel>
+    suspend fun getCompetitorsById(@Path("id") id : Int) : Response<CompetitorModelItem>
 
     @POST("/api/competitors")
     suspend fun createCompetitor(@Body competitor : CreationCompetitorModelItem) : Response<CompetitorModelItem>
@@ -116,4 +116,9 @@ interface API {
 
     @GET("/api/performances/{id}")
     suspend fun getPerformancesById(@Path("id") id : Int) : Response<PerformanceModel>
+
+    @GET("/api/courses/{id}/performances")
+    suspend fun getCoursePerformancesByCourseId(@Path("id") id : Int) : Response<PerformanceModel>
+
+
 }
