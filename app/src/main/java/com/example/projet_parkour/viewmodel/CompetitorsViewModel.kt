@@ -26,8 +26,12 @@ class CompetitorsViewModel : ViewModel() {
     private val _competitorResult = MutableLiveData<NetworkResponse<CompetitorModel>>()
     val competitorResult : LiveData<NetworkResponse<CompetitorModel>> = _competitorResult
 
-    private val _competitorByCompetitionResult = MutableLiveData<NetworkResponse<CompetitorModel>>()
-    val competitorByCompetitionResult : LiveData<NetworkResponse<CompetitorModel>> = _competitorByCompetitionResult
+    private val _competitorByCompetitionResult = MutableLiveData<NetworkResponse<List<CompetitorModelItem>>>()
+    val competitorByCompetitionResult : LiveData<NetworkResponse<List<CompetitorModelItem>>> = _competitorByCompetitionResult
+
+    private val _competitorByIdResult = MutableLiveData<NetworkResponse<CompetitorModelItem>>()
+    val competitorByIdResult : LiveData<NetworkResponse<CompetitorModelItem>> = _competitorByIdResult
+
 
     private val _createCompetitorResult = MutableLiveData<NetworkResponse<CompetitorModelItem>>()
     val createCompetitorResult : LiveData<NetworkResponse<CompetitorModelItem>> = _createCompetitorResult
@@ -59,6 +63,27 @@ class CompetitorsViewModel : ViewModel() {
             }
             catch (ex : Exception){
                 _competitorByCompetitionResult.value = NetworkResponse.Error("Les données n'ont pas réussi à être chargées. \n"+ ex.toString() + "\nmessage :" + ex.message)
+            }
+        }
+    }
+
+    fun getCompetitorsById(competitorId: Int){
+        _competitorByIdResult.value = NetworkResponse.Loading
+        viewModelScope.launch {
+            try {
+                val response = api.getCompetitorsById(competitorId)
+                if (response.isSuccessful) {
+                    response.body()?.let { body ->
+                        _competitorByIdResult.value = NetworkResponse.Success(body) // Directly assign the list
+                    } ?: run {
+                        _competitorByIdResult.value = NetworkResponse.Error("Réponse API vide.")
+                    }
+                } else {
+                    _competitorByIdResult.value = NetworkResponse.Error("Les données n'ont pas réussi à être chargées. (error "+response.code().toString() + ")");
+                }
+            }
+            catch (ex : Exception){
+                _competitorByIdResult.value = NetworkResponse.Error("Les données n'ont pas réussi à être chargées. \n"+ ex.toString() + "\nmessage :" + ex.message)
             }
         }
     }
